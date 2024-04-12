@@ -2,18 +2,18 @@ package cvut.fel.cz.logic.model.person;
 
 public class Person {
     private PersonStatus status;
-    private double x;
-    private double y;
+    private int x;
+    private int y;
     /* можно радиус в конфиг добавить */
     private final double radius;
 
-    public Person(double x, double y, double radius) {
+    public Person(int x, int y, double radius) {
         this.radius = radius;
         this.x = x;
         this.y = y;
     }
 
-    public Person(double x, double y) {
+    public Person(int x, int y) {
         this.radius = PersonConfig.radius;
         this.x = x;
         this.y = y;
@@ -21,7 +21,7 @@ public class Person {
 
 
 //    method moves
-    public void move(double newX, double newY) {
+    public void move(int newX, int newY) {
         this.x = newX;
         this.y = newY;
     }
