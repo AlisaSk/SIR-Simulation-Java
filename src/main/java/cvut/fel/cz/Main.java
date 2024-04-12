@@ -13,7 +13,7 @@ import java.io.IOException;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main extends Application {
     public static void main(String[] args) {
-
+        launch();
     }
 
     private static Scene scene;
