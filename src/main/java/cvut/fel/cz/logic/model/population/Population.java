@@ -15,10 +15,17 @@ public class Population {
         this.population = new ArrayList<>();
     }
 
+
+    /*
+    * adding person to the population
+    * */
     public void addPerson(Person person) {
         this.population.add(person);
     }
 
+    /*
+    * get population size
+    * */
     public int getQuantity() {
         return population.size();
     }
@@ -33,14 +40,23 @@ public class Population {
         return count;
     }
 
+    /*
+    * get S quantity
+    * */
     public int getSusceptibleQuantity () {
         return getQuantityByStatus(PersonStatus.Susceptible);
     }
 
+    /*
+     * get I quantity
+     * */
     public int getInfectiousQuantity () {
         return getQuantityByStatus(PersonStatus.Infectious);
     }
 
+    /*
+     * get R quantity
+     * */
     public int getRecoveredQuantity () {
         return getQuantityByStatus(PersonStatus.Recovered);
     }

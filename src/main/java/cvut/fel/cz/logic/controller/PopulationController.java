@@ -11,9 +11,9 @@ public class PopulationController implements PopulationControllerInterface{
     private Population population;
     private Graph graph;
     private final int populationSize;
-    public PopulationController(int populationSize) {
-        this.populationSize = populationSize;
+    public PopulationController() {
         this.population = new Population();
+        this.populationSize = population.getQuantity();
         this.graph = new Graph();
     }
 
@@ -29,7 +29,8 @@ public class PopulationController implements PopulationControllerInterface{
     public Person createPerson() {
         int x = throwRandom(500);
         int y = throwRandom(500);
-        return new Person(x, y);
+        Person person = new Person(x, y);
+        return person;
     }
 
     @Override

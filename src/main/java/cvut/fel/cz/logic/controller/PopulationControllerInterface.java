@@ -9,8 +9,14 @@ public interface PopulationControllerInterface {
 
     public void createPopulation();
 
+    /*
+    * creates a person
+    * */
     public Person createPerson();
 
+    /*
+    * generates random int value to set up person position
+    * */
     public int throwRandom(int length);
 
     /*
@@ -29,5 +35,8 @@ public interface PopulationControllerInterface {
      * */
     public void addNewRecovered();
 
+    /*
+    * updates statistics daily
+    * */
     public void updateStatistics(int dayNum);
 }
