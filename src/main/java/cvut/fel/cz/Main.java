@@ -20,7 +20,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("StartPage"), 640, 480);
+        scene = new Scene(loadFXML("start_page"), 640, 480);
         stage.setScene(scene);
         stage.show();
     }
@@ -30,8 +30,10 @@ public class Main extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
+
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxml + ".fxml"));
+            return fxmlLoader.load();
+
     }
 
 
