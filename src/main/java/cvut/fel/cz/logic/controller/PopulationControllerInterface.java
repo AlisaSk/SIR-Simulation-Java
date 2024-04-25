@@ -7,7 +7,7 @@ import java.util.Random;
 
 public interface PopulationControllerInterface {
 
-    public void createPopulation();
+    public Population createPopulation(int N);
 
     /*
     * creates a person
@@ -17,12 +17,13 @@ public interface PopulationControllerInterface {
     /*
     * generates random int value to set up person position
     * */
-    public int throwRandom(int length);
+    public int throwRandom(int coordMin, int coordMax);
 
     /*
      * move each person in the city
      * */
     public void movePeople();
+
 
     /*
      * change some people status in the population according to their contact with other I
