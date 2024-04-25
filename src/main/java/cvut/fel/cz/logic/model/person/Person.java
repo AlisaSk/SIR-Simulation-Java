@@ -2,32 +2,34 @@ package cvut.fel.cz.logic.model.person;
 
 public class Person {
     private PersonStatus status;
-    private int x;
-    private int y;
-    private int delX;
-    private int delY;
+    private double x;
+    private double y;
+    private double delX;
+    private double delY;
     /* можно радиус в конфиг добавить */
     private final double radius;
 
-    public Person(int x, int y, int delX, int delY, double radius) {
+    public Person(double x, double y, double delX, double delY, double radius) {
         this.radius = radius;
         this.x = x;
         this.y = y;
         this.delX = delX;
         this.delY = delY;
+        this.status = PersonStatus.Susceptible;
     }
 
-    public Person(int x, int y, int delX, int delY) {
+    public Person(double x, double y, double delX, double delY) {
         this.radius = PersonConfig.radius;
         this.x = x;
         this.y = y;
         this.delX = delX;
         this.delY = delY;
+        this.status = PersonStatus.Susceptible;
     }
 
 
 //    method moves
-    public void move(int newX, int newY) {
+    public void move(double newX, double newY) {
         this.x = newX;
         this.y = newY;
     }
@@ -55,19 +57,19 @@ public class Person {
     /*
     * спросить у шереди что лучше: сделать паблик поля или геттеры для переменных
     * */
-    public int getX() {
+    public double getX() {
         return this.x;
     }
 
-    public int getY() {
+    public double getY() {
         return this.y;
     }
 
-    public int getDelX() {
+    public double getDelX() {
         return this.delX;
     }
 
-    public int getDelY() {
+    public double getDelY() {
         return this.delY;
     }
 }

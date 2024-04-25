@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.Random;
 
 public class PopulationController implements PopulationControllerInterface{
-    private Population population;
-    private Graph graph;
+    Random random = new Random();
+    private final Population population;
+    private final Graph graph;
     public PopulationController(Population population) {
         this.population = population;
         this.graph = new Graph();
@@ -20,6 +21,12 @@ public class PopulationController implements PopulationControllerInterface{
     public Population createPopulation(int N) {
         for (int i = 0; i < N; i++) {
             Person person = this.createPerson();
+            if (i % 4 == 0) {
+                person.changeStatusToInfectious();
+            }
+            else if (i % 10 == 0) {
+                person.changeStatusToRecovered();
+            }
             this.population.addPerson(person);
         }
         return this.population;
@@ -35,17 +42,15 @@ public class PopulationController implements PopulationControllerInterface{
         int yMax = 405;
         int y = throwRandom(yMin, yMax);
 //        !!!!!!!!!!!!!!!!!!
-        Random random = new Random();
-        int dx = random.nextInt(1) - 2;
-        int dy = random.nextInt(1) - 2;
+        double dx = this.random.nextDouble() * 2 - 1; // Скорость от -5 до 5
+        double dy = this.random.nextDouble() * 2 - 1;
         Person person = new Person(x, y, dx, dy);
         return person;
     }
 
     @Override
     public int throwRandom(int coordMin, int coordMax) {
-        Random random = new Random();
-        int x = random.nextInt(coordMax - coordMin) + coordMin;
+        int x = this.random.nextInt(coordMax - coordMin) + coordMin;
         return x;
     }
 
@@ -54,19 +59,20 @@ public class PopulationController implements PopulationControllerInterface{
 //        криво, нужно добавлять скорость к каждому персону
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
-            int newX = currentPerson.getX() + currentPerson.getDelX();
-            int newY = currentPerson.getY() + currentPerson.getDelY();
+//            сделать движение по дабл, не по интам
+            double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
+            double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 
             boolean isValidX = newX > 405 && newX < 775;
             boolean isValidY = newY > 35 && newY < 405;
 
             if (!isValidX) {
                 currentPerson.updateDelX();
-                newX = currentPerson.getX() + currentPerson.getDelX();
+                newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
             }
             if (!isValidY) {
                 currentPerson.updateDelY();
-                newY = currentPerson.getY() + currentPerson.getDelY();
+                newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
             }
 
             currentPerson.move(newX, newY);

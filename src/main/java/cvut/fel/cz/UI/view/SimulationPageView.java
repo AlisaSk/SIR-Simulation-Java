@@ -1,6 +1,7 @@
 package cvut.fel.cz.UI.view;
 
 import cvut.fel.cz.logic.controller.PopulationController;
+import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Node;
@@ -71,9 +72,35 @@ public class SimulationPageView {
     public void initPopulation(AnchorPane layout) {
         // N должна передаваться ИЗ ВЬЮ (задает пользователь, но пока так)
         for (int i = 0; i < 100; i++) {
-            int x = population.getPerson(i).getX();
-            int y = population.getPerson(i).getY();
-            Circle circle = new Circle(x, y, 3, Color.WHITE);
+            Person currentPerson = population.getPerson(i);
+            double x = currentPerson.getX();
+            double y = currentPerson.getY();
+
+            String hex;
+            double opacity;
+
+            switch (currentPerson.getStatus()){
+                case Susceptible:
+                    hex = "#6098f7";
+                    opacity = 0.8;
+                    break;
+                case Infectious:
+                    hex = "#f7406e";
+                    opacity = 0.8;
+                    break;
+                case Recovered:
+                    hex = "#9e9e9d";
+                    opacity = 0.8;
+                    break;
+                default:
+                    hex = "#fcfcfc";
+                    opacity = 1;
+                    break;
+            }
+
+            Color personColor = Color.web(hex, opacity);
+
+            Circle circle = new Circle(x, y, 3, personColor);
             layout.getChildren().add(circle);
         }
     }
