@@ -3,6 +3,7 @@ package cvut.fel.cz.logic.controller;
 import cvut.fel.cz.logic.model.graph.Day;
 import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.person.Person;
+import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 
 import java.util.List;
@@ -21,11 +22,8 @@ public class PopulationController implements PopulationControllerInterface{
     public Population createPopulation(int N) {
         for (int i = 0; i < N; i++) {
             Person person = this.createPerson();
-            if (i % 4 == 0) {
+            if (i == 0) {
                 person.changeStatusToInfectious();
-            }
-            else if (i % 10 == 0) {
-                person.changeStatusToRecovered();
             }
             this.population.addPerson(person);
         }
@@ -41,7 +39,7 @@ public class PopulationController implements PopulationControllerInterface{
         int yMin = 35;
         int yMax = 405;
         int y = throwRandom(yMin, yMax);
-//        !!!!!!!!!!!!!!!!!!
+//        !!!!!!!!!!!!!!!!!! change delta in moves so person will have different directions
         double dx = this.random.nextDouble() * 2 - 1; // Скорость от -5 до 5
         double dy = this.random.nextDouble() * 2 - 1;
         Person person = new Person(x, y, dx, dy);
@@ -60,9 +58,11 @@ public class PopulationController implements PopulationControllerInterface{
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
 //            сделать движение по дабл, не по интам
+
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
             double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 
+//            поменять расстояние, дожны зависеть от размера экрана и размера мячиков
             boolean isValidX = newX > 405 && newX < 775;
             boolean isValidY = newY > 35 && newY < 405;
 
@@ -75,14 +75,40 @@ public class PopulationController implements PopulationControllerInterface{
                 newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
             }
 
+
+
             currentPerson.move(newX, newY);
+
+            if (currentPerson.getStatus() == PersonStatus.Infectious) {
+                this.addNewInfectious(i, newX, newY, 1.6);
+            }
         }
 
     }
 
     @Override
-    public void addNewInfectious() {
+    public void addNewInfectious(int personI, double infectedX, double infectedY, double radius) {
+        for (int i = 0; i < this.population.getQuantity(); i++) {
+            if (i == personI) {
+                continue;
+            }
+            Person personS = this.population.getPerson(i);
+            if (personS.getStatus() == PersonStatus.Susceptible) {
+                double xS = personS.getX();
+                double yS = personS.getY();
 
+                double distance = Math.sqrt(Math.pow(infectedX - xS, 2) + Math.pow(infectedY - yS, 2));
+
+                // TODO здесь должно быть расстояние которое зависит от размера кружка
+                if (distance > radius * 3) {
+                    continue;
+                }
+
+                if (this.random.nextDouble() < 0.2) {
+                    personS.changeStatusToInfectious();
+                }
+            }
+        }
     }
 
     @Override

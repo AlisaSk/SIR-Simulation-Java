@@ -45,6 +45,19 @@ public class Person {
 
     public void changeStatusToInfectious() {
         this.status = PersonStatus.Infectious;
+        startRecoveryProcess();
+    }
+
+    private void startRecoveryProcess() {
+        Thread recoveryThread = new Thread(() -> {
+            try {
+                Thread.sleep(10000); // Sleep for 10 seconds to simulate recovery time
+                this.changeStatusToRecovered();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Properly handle thread interruption
+            }
+        });
+        recoveryThread.start();
     }
 
     public void changeStatusToRecovered() {

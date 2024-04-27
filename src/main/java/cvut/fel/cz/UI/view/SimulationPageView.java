@@ -19,13 +19,23 @@ public class SimulationPageView {
     private final PopulationController populationController;
     private Population population;
 
+    int N;
+
     private Rectangle populationBoard;
     public SimulationPageView(PopulationController populationController) {
+        this.N = 200;
         this.populationController = populationController;
-        this.population = this.populationController.createPopulation(100);
+        this.population = this.populationController.createPopulation(this.N);
     }
 
-    public Scene showSimulationWindow() {
+    public Scene start() {
+        new AnchorPane();
+        AnchorPane layout = this.createSimulationWindow();
+        Scene scene = new Scene(layout, 800, 500);
+        return scene;
+    }
+
+    public AnchorPane createSimulationWindow() {
         AnchorPane layout = new AnchorPane();
         Image image = new Image("file:src/main/resources/cvut/fel/cz/background_1.jpg");
         BackgroundImage backgroundImage = new BackgroundImage(
@@ -37,7 +47,7 @@ public class SimulationPageView {
         );
 
         layout.setBackground(new Background(backgroundImage));
-        this.populationBoard = this.showPopulationMoves();
+        this.populationBoard = this.setPopulationBoard();
         layout.getChildren().add(this.populationBoard);
         this.initPopulation(layout);
         AnimationTimer timer = new AnimationTimer() {
@@ -46,12 +56,12 @@ public class SimulationPageView {
                 updateCircles(layout);
             }
         };
+
         timer.start();
-        Scene scene = new Scene(layout, 800, 500);
-        return scene;
+        return layout;
     }
 
-    private Rectangle showPopulationMoves() {
+    private Rectangle setPopulationBoard() {
         Rectangle populationBoard = new Rectangle();
 
         populationBoard.setHeight(380);
@@ -62,7 +72,6 @@ public class SimulationPageView {
 
         populationBoard.setStroke(Color.WHITE);
 
-        // Установка толщины оконтовки
         populationBoard.setStrokeWidth(5);
         populationBoard.setFill(Color.TRANSPARENT);
 
@@ -71,7 +80,8 @@ public class SimulationPageView {
 
     public void initPopulation(AnchorPane layout) {
         // N должна передаваться ИЗ ВЬЮ (задает пользователь, но пока так)
-        for (int i = 0; i < 100; i++) {
+        int circleSize = 5;
+        for (int i = 0; i < this.N; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
             double y = currentPerson.getY();
@@ -100,7 +110,7 @@ public class SimulationPageView {
 
             Color personColor = Color.web(hex, opacity);
 
-            Circle circle = new Circle(x, y, 3, personColor);
+            Circle circle = new Circle(x, y, circleSize, personColor);
             layout.getChildren().add(circle);
         }
     }
@@ -115,6 +125,5 @@ public class SimulationPageView {
         // Remove all collected circles from the layout
         layout.getChildren().removeAll(circlesToRemove);
         this.initPopulation(layout);
-
     }
 }
