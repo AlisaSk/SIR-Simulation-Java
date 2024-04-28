@@ -11,16 +11,20 @@ import java.util.Random;
 
 public class PopulationController implements PopulationControllerInterface{
     Random random = new Random();
+    private final int circleSize;
+    private final int N;
     private final Population population;
     private final Graph graph;
-    public PopulationController(Population population) {
+    public PopulationController(Population population, int N) {
         this.population = population;
         this.graph = new Graph();
+        this.circleSize = this.countCircleSize(N);
+        this.N = N;
     }
 
     @Override
-    public Population createPopulation(int N) {
-        for (int i = 0; i < N; i++) {
+    public Population createPopulation() {
+        for (int i = 0; i < this.N; i++) {
             Person person = this.createPerson();
             if (i == 0) {
                 person.changeStatusToInfectious();
@@ -32,12 +36,11 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public Person createPerson() {
-//        криво, нужно обосновать откуда эти цифры
-        int xMin = 405;
-        int xMax = 775;
+        int xMin = 400 + this.circleSize;
+        int xMax = 400 + 380 - this.circleSize;
         int x = throwRandom(xMin, xMax);
-        int yMin = 35;
-        int yMax = 405;
+        int yMin = 30 + this.circleSize;
+        int yMax = 30 + 380 - this.circleSize;
         int y = throwRandom(yMin, yMax);
 //        !!!!!!!!!!!!!!!!!! change delta in moves so person will have different directions
         double dx = this.random.nextDouble() * 2 - 1; // Скорость от -5 до 5
@@ -54,17 +57,14 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public void movePeople() {
-//        криво, нужно добавлять скорость к каждому персону
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
-//            сделать движение по дабл, не по интам
 
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
             double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 
-//            поменять расстояние, дожны зависеть от размера экрана и размера мячиков
-            boolean isValidX = newX > 405 && newX < 775;
-            boolean isValidY = newY > 35 && newY < 405;
+            boolean isValidX = newX > 400 + circleSize && newX < 400 + 380 - circleSize;
+            boolean isValidY = newY > 30 + circleSize && newY < 30 + 380 - circleSize;
 
             if (!isValidX) {
                 currentPerson.updateDelX();
@@ -74,8 +74,6 @@ public class PopulationController implements PopulationControllerInterface{
                 currentPerson.updateDelY();
                 newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
             }
-
-
 
             currentPerson.move(newX, newY);
 
@@ -94,13 +92,13 @@ public class PopulationController implements PopulationControllerInterface{
             }
             Person personS = this.population.getPerson(i);
             if (personS.getStatus() == PersonStatus.Susceptible) {
-                double xS = personS.getX();
-                double yS = personS.getY();
+                double suscepX = personS.getX();
+                double suscepY = personS.getY();
 
-                double distance = Math.sqrt(Math.pow(infectedX - xS, 2) + Math.pow(infectedY - yS, 2));
+                double distance = Math.sqrt(Math.pow(infectedX - suscepX, 2) + Math.pow(infectedY - suscepY, 2));
 
                 // TODO здесь должно быть расстояние которое зависит от размера кружка
-                if (distance > radius * 3) {
+                if (distance > radius * this.circleSize) {
                     continue;
                 }
 
@@ -114,6 +112,31 @@ public class PopulationController implements PopulationControllerInterface{
     @Override
     public void addNewRecovered() {
 
+    }
+
+    @Override
+    public int countCircleSize(int N) {
+        // TODO add the circleSize as the parameter for user
+        int largeSize = 25;
+        int bigSize = 15;
+        int mediumSize = 10;
+        int smallSize = 4;
+        int tinySize = 2;
+
+        if (N <= 20) {
+            return largeSize;
+        }
+        if (N <= 65) {
+            return bigSize;
+        }
+        if (N <= 150) {
+            return  mediumSize;
+        }
+        if (N <= 400) {
+            return smallSize;
+        }
+
+        return tinySize;
     }
 
     @Override

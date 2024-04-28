@@ -12,16 +12,14 @@ import javafx.scene.image.Image;
 
 
 public class SimulationPageController {
+    Population population;
     PopulationController populationController;
     StatisticsController statisticsController;
     int quantity;
     public SimulationPageController(Population population) {
-        this.populationController = new PopulationController(population);
         this.quantity = 100;
     }
 
     public void updateSimulation() {
-        this.populationController.createPopulation(quantity);
-
     }
 }

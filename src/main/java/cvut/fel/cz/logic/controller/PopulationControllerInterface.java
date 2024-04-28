@@ -7,7 +7,7 @@ import java.util.Random;
 
 public interface PopulationControllerInterface {
 
-    public Population createPopulation(int N);
+    public Population createPopulation();
 
     /*
     * creates a person
@@ -35,6 +35,8 @@ public interface PopulationControllerInterface {
      * change some I people status to R after infectious period is ended
      * */
     public void addNewRecovered();
+
+    public int countCircleSize(int N);
 
     /*
     * updates statistics daily

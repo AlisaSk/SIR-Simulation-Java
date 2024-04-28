@@ -19,13 +19,15 @@ public class SimulationPageView {
     private final PopulationController populationController;
     private Population population;
 
-    int N;
+    private final int N;
 
     private Rectangle populationBoard;
-    public SimulationPageView(PopulationController populationController) {
-        this.N = 200;
+    public SimulationPageView(PopulationController populationController, int N) {
+        // after adding parameters page they will be given as the parameters here
+        // the parameters: N (populationQuantity), R (radius)
         this.populationController = populationController;
-        this.population = this.populationController.createPopulation(this.N);
+        this.N = N;
+        this.population = this.populationController.createPopulation(); // instance of population
     }
 
     public Scene start() {
@@ -47,8 +49,10 @@ public class SimulationPageView {
         );
 
         layout.setBackground(new Background(backgroundImage));
+
         this.populationBoard = this.setPopulationBoard();
         layout.getChildren().add(this.populationBoard);
+
         this.initPopulation(layout);
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -58,6 +62,7 @@ public class SimulationPageView {
         };
 
         timer.start();
+
         return layout;
     }
 
@@ -79,8 +84,7 @@ public class SimulationPageView {
     }
 
     public void initPopulation(AnchorPane layout) {
-        // N должна передаваться ИЗ ВЬЮ (задает пользователь, но пока так)
-        int circleSize = 5;
+        int circleSize = populationController.countCircleSize(this.N);
         for (int i = 0; i < this.N; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
@@ -89,6 +93,7 @@ public class SimulationPageView {
             String hex;
             double opacity;
 
+            // set up color for each person
             switch (currentPerson.getStatus()){
                 case Susceptible:
                     hex = "#6098f7";
@@ -126,4 +131,6 @@ public class SimulationPageView {
         layout.getChildren().removeAll(circlesToRemove);
         this.initPopulation(layout);
     }
+
+
 }

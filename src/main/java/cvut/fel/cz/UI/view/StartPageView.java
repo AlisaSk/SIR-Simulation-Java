@@ -22,9 +22,10 @@ public class StartPageView {
 
     @FXML
     void start(ActionEvent event) throws IOException {
-        Population population = new Population();
-        PopulationController populationController = new PopulationController(population);
-        SimulationPageView simulationPageView = new SimulationPageView(populationController);
+        Population population = new Population(); // model
+        int N = 20;
+        PopulationController populationController = new PopulationController(population, N); // controller
+        SimulationPageView simulationPageView = new SimulationPageView(populationController, N); // view
         Scene simulationScene = simulationPageView.start();
 
         Node source = (Node) event.getSource(); // Источник события - кнопка, на которую нажали
