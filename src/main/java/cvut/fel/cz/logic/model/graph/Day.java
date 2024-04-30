@@ -16,4 +16,9 @@ public class Day {
         this.quantityInfectious = quantityInfectious;
         this.quantityRecovered = quantityRecovered;
     }
+    public int getDaySusceptible() {return this.quantitySusceptible; }
+
+    public int getDayInfected() {return this.quantityInfectious; }
+
+    public int getDayRecovered() {return this.quantityRecovered; }
 }

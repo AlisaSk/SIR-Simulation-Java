@@ -38,8 +38,4 @@ public interface PopulationControllerInterface {
 
     public int countCircleSize(int N);
 
-    /*
-    * updates statistics daily
-    * */
-    public void updateStatistics(int dayNum);
 }

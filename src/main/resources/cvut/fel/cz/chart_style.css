@@ -1,0 +1,96 @@
+.invisibleBox{
+    -fx-background-color: transparent;
+}
+
+/*.topBar{*/
+/*    -fx-background-radius: 25 25 0 0;*/
+/*    -fx-background-color: #0b3048;*/
+/*}*/
+
+
+
+/*.background{*/
+/*    -fx-background-color: #05263b;*/
+/*    -fx-background-radius: 25;*/
+/*}*/
+
+
+/*.closeButton{*/
+/*    -fx-background-color:#0b3048;*/
+/*}*/
+
+/*.closeButton:hover{*/
+/*    -fx-background-color: #e94e50;*/
+/*}*/
+
+
+.chart{
+    -fx-background-color: transparent;
+    -fx-font-size: 15;
+    -fx-text-fill: white;
+    -fx-legend-visible: false;
+}
+
+.axis-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Times New Roman";
+}
+
+.axis-tick-label {
+    -fx-fill: red;           /* Sets the text color */
+    -fx-font-size: 12px;     /* Optionally, adjust the font size */
+    -fx-font-family: "Times New Roman";  /* Optionally, change the font family */
+}
+
+.chart-plot-background {
+    /** -fx-background: linear-gradient(to top right,#e66465, #9198e5); **/
+    -fx-background: transparent;
+}
+
+.chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect: null;
+}
+.default-color0.chart-area-symbol { -fx-background-color: #434c91, white; }
+.default-color1.chart-area-symbol { -fx-background-color: #912945, white; }
+.default-color2.chart-area-symbol { -fx-background-color: #595958, white; }
+
+.default-color0.chart-series-area-line { -fx-stroke: #6098f7; }
+.default-color1.chart-series-area-line { -fx-stroke: #f7406e; }
+.default-color2.chart-series-area-line { -fx-stroke: #9e9e9d; }
+
+.default-color0.chart-series-area-fill { -fx-fill: rgba(96, 152, 247, 0.5)}
+.default-color1.chart-series-area-fill { -fx-fill: rgba(247, 64, 110, 0.5); }
+.default-color2.chart-series-area-fill { -fx-fill: rgba(158, 158, 157, 0.5); }
+
+
+
+/*.default-color0.chart-series-line { -fx-stroke: #6098f7; }*/
+/*.default-color1.chart-series-line { -fx-stroke: #f7406e; }*/
+/*.default-color2.chart-series-line { -fx-stroke: #9e9e9d; }*/
+
+/*!*.default-color0.chart-series-line {*!*/
+/*!*    -fx-stroke: #6098f7; !* синий цвет линии *!*!*/
+/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
+/*!*}*!*/
+/*.default-color0.chart-series-area-fill {*/
+/*    -fx-fill: rgba(96, 152, 247, 0.5); !* полупрозрачная синяя заливка *!*/
+/*}*/
+
+/*!* Установка цвета линий и заливки для второй серии *!*/
+/*!*.default-color1.chart-series-line {*!*/
+/*!*    -fx-stroke: #f7406e; !* красный цвет линии *!*!*/
+/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
+/*!*}*!*/
+/*.default-color1.chart-series-area-fill {*/
+/*    -fx-fill: rgba(247, 64, 110, 0.5); !* полупрозрачная красная заливка *!*/
+/*}*/
+
+/*!* Установка цвета линий и заливки для третьей серии *!*/
+/*!*.default-color2.chart-series-line {*!*/
+/*!*    -fx-stroke: #9e9e9d; !* серый цвет линии *!*!*/
+/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
+/*!*}*!*/
+/*.default-color2.chart-series-area-fill {*/
+/*    -fx-fill: rgba(158, 158, 157, 0.5); !* полупрозрачная серая заливка *!*/
+/*}*/

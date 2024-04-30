@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import cvut.fel.cz.logic.controller.PopulationController;
+import cvut.fel.cz.logic.controller.StatisticsController;
+import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,9 +25,11 @@ public class StartPageView {
     @FXML
     void start(ActionEvent event) throws IOException {
         Population population = new Population(); // model
-        int N = 20;
-        PopulationController populationController = new PopulationController(population, N); // controller
-        SimulationPageView simulationPageView = new SimulationPageView(populationController, N); // view
+        Graph graph = new Graph(population);
+        int N = 1000;
+        PopulationController populationController = new PopulationController(population, N);
+        StatisticsController statisticsController = new StatisticsController(graph); // controller
+        SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController, N); // view
         Scene simulationScene = simulationPageView.start();
 
         Node source = (Node) event.getSource(); // Источник события - кнопка, на которую нажали

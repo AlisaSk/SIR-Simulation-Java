@@ -14,10 +14,8 @@ public class PopulationController implements PopulationControllerInterface{
     private final int circleSize;
     private final int N;
     private final Population population;
-    private final Graph graph;
     public PopulationController(Population population, int N) {
         this.population = population;
-        this.graph = new Graph();
         this.circleSize = this.countCircleSize(N);
         this.N = N;
     }
@@ -102,7 +100,7 @@ public class PopulationController implements PopulationControllerInterface{
                     continue;
                 }
 
-                if (this.random.nextDouble() < 0.2) {
+                if (this.random.nextDouble() < 0.1) {
                     personS.changeStatusToInfectious();
                 }
             }
@@ -139,12 +137,12 @@ public class PopulationController implements PopulationControllerInterface{
         return tinySize;
     }
 
-    @Override
-    public void updateStatistics(int dayNum) {
-        int countS = population.getSusceptibleQuantity();
-        int countI = population.getInfectiousQuantity();
-        int countR = population.getRecoveredQuantity();
-        Day day = new Day(dayNum, countS, countI, countR);
-        this.graph.addNewDay(day);
-    }
+//    @Override
+//    public void updateStatistics(int dayNum) {
+//        int countS = population.getSusceptibleQuantity();
+//        int countI = population.getInfectiousQuantity();
+//        int countR = population.getRecoveredQuantity();
+//        Day day = new Day(dayNum, countS, countI, countR);
+//        this.graph.addNewDay(day);
+//    }
 }
