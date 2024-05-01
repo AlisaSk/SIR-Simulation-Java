@@ -2,10 +2,10 @@ package cvut.fel.cz.logic.model.graph;
 
 public class Day {
 
-    public int dayNumber;
-    public int quantitySusceptible;
-    public int quantityInfectious;
-    public int quantityRecovered;
+    private final int dayNumber;
+    private final int quantitySusceptible;
+    private final int quantityInfectious;
+    private final int quantityRecovered;
 
     /*
     * initialize the day
@@ -16,4 +16,9 @@ public class Day {
         this.quantityInfectious = quantityInfectious;
         this.quantityRecovered = quantityRecovered;
     }
+    public int getDaySusceptible() {return this.quantitySusceptible; }
+
+    public int getDayInfected() {return this.quantityInfectious; }
+
+    public int getDayRecovered() {return this.quantityRecovered; }
 }

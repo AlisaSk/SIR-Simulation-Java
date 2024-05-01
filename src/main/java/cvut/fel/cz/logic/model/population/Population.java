@@ -23,6 +23,9 @@ public class Population {
         this.population.add(person);
     }
 
+    public Person getPerson(int index) {
+        return this.population.get(index);
+    }
     /*
     * get population size
     * */
