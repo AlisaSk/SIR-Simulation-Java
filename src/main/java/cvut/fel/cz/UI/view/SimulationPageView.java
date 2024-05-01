@@ -89,20 +89,6 @@ public class SimulationPageView {
         };
         timer.start();
 
-//        AnimationTimer timer2 = new AnimationTimer() {
-//            @Override
-//            public void handle(long now) {
-//                try {
-//                    sleep(10000);
-//                } catch (InterruptedException e) {
-//                    // throw new RuntimeException(e);
-//                    updateChart(layout, diagram);
-//                }
-//                // updateChart(layout, diagram);
-//            }
-//        };
-//        timer2.start();
-
         return layout;
     }
 
@@ -115,9 +101,9 @@ public class SimulationPageView {
         populationBoard.setX(400);
         populationBoard.setY(30);
 
-        populationBoard.setStroke(Color.WHITE);
+        populationBoard.setStroke(Color.web("#9b9c9e"));
+        populationBoard.setStrokeWidth(2);
 
-        populationBoard.setStrokeWidth(5);
         populationBoard.setFill(Color.TRANSPARENT);
 
         return populationBoard;
@@ -189,12 +175,28 @@ public class SimulationPageView {
         infectiousSeries.getData().add(new XYChart.Data<Number, Number>(currentDay,iCount));
         recoveredSeries.getData().add(new XYChart.Data<Number, Number>(currentDay,rCount));
 
-        // areaChart.getData().addAll(susceptibleSeries,infectiousSeries,recoveredSeries);
+        NumberAxis xAxis = (NumberAxis) areaChart.getXAxis();
+        xAxis.setUpperBound(currentDay + 1);
+
+        if (currentDay < 10) {
+            xAxis.setTickUnit(1);
+        } else if (currentDay < 25) {
+            xAxis.setTickUnit(2);
+        } else if (currentDay < 50) {
+            xAxis.setTickUnit(5);
+        } else {
+            xAxis.setTickUnit(10);
+        }
     }
 
     private StackedAreaChart<Number, Number> createSIRDiagram() {
         // Creating X-Axis for representing day's flow
         NumberAxis xAxis = new NumberAxis();
+        xAxis.setAutoRanging(false);
+        xAxis.setForceZeroInRange(false); // Отключаем принудительное начало с нуля
+        xAxis.setLowerBound(1); // Начинаем с 1
+        xAxis.setUpperBound(5); // Устанавливаем начальное верхнее ограничение (можно изменять по мере добавления данных)
+        xAxis.setTickUnit(1);
         xAxis.setLabel("Days");
 
         // Y-Axis for population

@@ -31,15 +31,23 @@
     -fx-legend-visible: false;
 }
 
+/* Axis (x and y) styles */
 .axis-label {
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: #9b9c9e;
     -fx-font-family: "Times New Roman";
 }
 
-.axis-tick-label {
-    -fx-fill: red;           /* Sets the text color */
-    -fx-font-size: 12px;     /* Optionally, adjust the font size */
-    -fx-font-family: "Times New Roman";  /* Optionally, change the font family */
+/* Invisible backdround lines */
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.axis {
+    -fx-tick-label-fill: #9b9c9e;
+    -fx-minor-tick-length: 1;
 }
 
 .chart-plot-background {
@@ -51,9 +59,10 @@
     -fx-stroke-width: 2px;
     -fx-effect: null;
 }
-.default-color0.chart-area-symbol { -fx-background-color: #434c91, white; }
-.default-color1.chart-area-symbol { -fx-background-color: #912945, white; }
-.default-color2.chart-area-symbol { -fx-background-color: #595958, white; }
+
+.default-color0.chart-area-symbol { -fx-background-color: #6098f7; }
+.default-color1.chart-area-symbol { -fx-background-color: #f7406e; }
+.default-color2.chart-area-symbol { -fx-background-color: #9e9e9d; }
 
 .default-color0.chart-series-area-line { -fx-stroke: #6098f7; }
 .default-color1.chart-series-area-line { -fx-stroke: #f7406e; }
@@ -63,34 +72,3 @@
 .default-color1.chart-series-area-fill { -fx-fill: rgba(247, 64, 110, 0.5); }
 .default-color2.chart-series-area-fill { -fx-fill: rgba(158, 158, 157, 0.5); }
 
-
-
-/*.default-color0.chart-series-line { -fx-stroke: #6098f7; }*/
-/*.default-color1.chart-series-line { -fx-stroke: #f7406e; }*/
-/*.default-color2.chart-series-line { -fx-stroke: #9e9e9d; }*/
-
-/*!*.default-color0.chart-series-line {*!*/
-/*!*    -fx-stroke: #6098f7; !* синий цвет линии *!*!*/
-/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
-/*!*}*!*/
-/*.default-color0.chart-series-area-fill {*/
-/*    -fx-fill: rgba(96, 152, 247, 0.5); !* полупрозрачная синяя заливка *!*/
-/*}*/
-
-/*!* Установка цвета линий и заливки для второй серии *!*/
-/*!*.default-color1.chart-series-line {*!*/
-/*!*    -fx-stroke: #f7406e; !* красный цвет линии *!*!*/
-/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
-/*!*}*!*/
-/*.default-color1.chart-series-area-fill {*/
-/*    -fx-fill: rgba(247, 64, 110, 0.5); !* полупрозрачная красная заливка *!*/
-/*}*/
-
-/*!* Установка цвета линий и заливки для третьей серии *!*/
-/*!*.default-color2.chart-series-line {*!*/
-/*!*    -fx-stroke: #9e9e9d; !* серый цвет линии *!*!*/
-/*!*    -fx-stroke-width: 5px; !* толщина линии *!*!*/
-/*!*}*!*/
-/*.default-color2.chart-series-area-fill {*/
-/*    -fx-fill: rgba(158, 158, 157, 0.5); !* полупрозрачная серая заливка *!*/
-/*}*/

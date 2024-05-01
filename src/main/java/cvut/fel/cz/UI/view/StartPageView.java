@@ -26,7 +26,7 @@ public class StartPageView {
     void start(ActionEvent event) throws IOException {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
-        int N = 1000;
+        int N = 1200;
         PopulationController populationController = new PopulationController(population, N);
         StatisticsController statisticsController = new StatisticsController(graph); // controller
         SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController, N); // view
