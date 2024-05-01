@@ -16,30 +16,30 @@ import javafx.stage.Stage;
 
 public class StartPageView {
 
-    @FXML
-    private ResourceBundle resources;
-
-    @FXML
-    private URL location;
+//    @FXML
+//    private ResourceBundle resources;
+//
+//    @FXML
+//    private URL location;
 
     @FXML
     void start(ActionEvent event) throws IOException {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
-        int N = 20;
-        PopulationController populationController = new PopulationController(population, N);
-        StatisticsController statisticsController = new StatisticsController(graph); // controller
-        SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController, N); // view
+        int N = 250;
+        PopulationController populationController = new PopulationController(population, N); // Population controller
+        StatisticsController statisticsController = new StatisticsController(graph); // Statistics controller
+        SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController, N); // Simulation Page view
         Scene simulationScene = simulationPageView.start();
 
-        Node source = (Node) event.getSource(); // Источник события - кнопка, на которую нажали
-        Stage currentStage = (Stage) source.getScene().getWindow(); // Получаем Stage текущего окна
-        currentStage.setScene(simulationScene); // Закрываем текущее окно
+        Node source = (Node) event.getSource();
+        Stage currentStage = (Stage) source.getScene().getWindow();
+        currentStage.setScene(simulationScene); // closing previous page
     }
 
-    @FXML
-    void initialize() {
-
-    }
+//    @FXML
+//    void initialize() {
+//
+//    }
 
 }

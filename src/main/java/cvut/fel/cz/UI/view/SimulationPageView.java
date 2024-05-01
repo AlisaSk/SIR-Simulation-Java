@@ -7,12 +7,9 @@ import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -20,22 +17,18 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
 public class SimulationPageView {
     private final PopulationController populationController;
     private final StatisticsController statisticsController;
-    private Population population;
-    private Graph graph;
+    private final Population population;
+    private final Graph graph;
     private long lastUpdate = 0;
+    AnchorPane layout;
+    StackedAreaChart<Number, Number> diagram;
     private Text sText, iText, rText, dayText;
-
-
     private final int N;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController, int N) {
@@ -49,49 +42,39 @@ public class SimulationPageView {
     }
 
     public Scene start() {
-        new AnchorPane();
-        AnchorPane layout = this.createSimulationWindow();
+        this.layout = this.createSimulationWindow();
         Scene scene = new Scene(layout, 800, 500);
         return scene;
     }
 
     public AnchorPane createSimulationWindow() {
-        // вынести лайаут в поле класса
-        AnchorPane layout = new AnchorPane();
-        Image image = new Image("file:src/main/resources/cvut/fel/cz/background_1.jpg");
-//        BackgroundImage backgroundImage = new BackgroundImage(
-//                image,
-//                BackgroundRepeat.NO_REPEAT,
-//                BackgroundRepeat.NO_REPEAT,
-//                BackgroundPosition.DEFAULT,
-//                BackgroundSize.DEFAULT
-//        );
-//
-//        layout.setBackground(new Background(backgroundImage));
+        this.layout = new AnchorPane();
         layout.setStyle("-fx-background-color: #232324;");
-        this.drawLines(layout);
+        this.drawLines();
 
         Rectangle populationBoard = this.setPopulationBoard();
         layout.getChildren().add(populationBoard);
+        AnchorPane.setTopAnchor(populationBoard, 30.0);
+        AnchorPane.setRightAnchor(populationBoard, 20.0);
 
-        StackedAreaChart diagram = this.createAreaChart();
+        this.diagram = this.createAreaChart();
         layout.getChildren().add(diagram);
 
-        diagram.setPrefSize(400, 300); // Preferred size
+        diagram.setPrefSize(400, 300);
         AnchorPane.setTopAnchor(diagram, 20.0);
         AnchorPane.setLeftAnchor(diagram, -10.0);
 
-        this.initPopulation(layout);
-        this.addTextStatistics(layout);
-        this.updateChart(diagram);
+        this.initPopulation();
+        this.addTextStatistics();
+        this.updateChart();
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                updateCircles(layout);
+                updateCircles();
                 if (now - lastUpdate >= 1_000_000_000L) { // 1 second in nanoseconds
-                    updateChart(diagram);
-                    updateTextStatistics(layout);
+                    updateChart();
+                    updateTextStatistics();
                     lastUpdate = now;
                 }
             }
@@ -101,16 +84,11 @@ public class SimulationPageView {
         return layout;
     }
 
-
-
     private Rectangle setPopulationBoard() {
         Rectangle populationBoard = new Rectangle();
 
         populationBoard.setHeight(380);
         populationBoard.setWidth(380);
-
-        populationBoard.setX(400);
-        populationBoard.setY(30);
 
         populationBoard.setStroke(Color.web("#9b9c9e"));
         populationBoard.setStrokeWidth(2);
@@ -120,28 +98,28 @@ public class SimulationPageView {
         return populationBoard;
     }
 
-    private void drawLines(AnchorPane layout) {
-        int cellSize = 30; // Размер ячейки сетки
-        int width = 800; // Ширина сцены
-        int height = 500; // Высота сцены
+    private void drawLines() {
+        int cellSize = 30;
+        int width = 800;
+        int height = 500;
 
-        // Рисование вертикальных линий
+
         for (int i = 0; i < width; i += cellSize) {
             Line line = new Line(i, 0, i, height);
             line.setStroke(Color.rgb(155, 156, 158, 0.3)); // Цвет линий
-            layout.getChildren().add(line);
+            this.layout.getChildren().add(line);
         }
 
-        // Рисование горизонтальных линий
+
         for (int i = 0; i < height; i += cellSize) {
             Line line = new Line(0, i, width, i);
             line.setStroke(Color.rgb(155, 156, 158, 0.3));
-            layout.getChildren().add(line);
+            this.layout.getChildren().add(line);
         }
 
     }
 
-    private void addTextStatistics(AnchorPane layout) {
+    private void addTextStatistics() {
         Text sText = new Text("Susceptible: ");
         Text iText = new Text("Infectious: ");
         Text rText = new Text("Recovered: ");
@@ -169,13 +147,13 @@ public class SimulationPageView {
         rText.setX(30);
         rText.setY(445);
 
-        layout.getChildren().add(sText);
-        layout.getChildren().add(iText);
-        layout.getChildren().add(rText);
-        layout.getChildren().add(dayText);
+        this.layout.getChildren().add(sText);
+        this.layout.getChildren().add(iText);
+        this.layout.getChildren().add(rText);
+        this.layout.getChildren().add(dayText);
     }
 
-    private void updateTextStatistics(AnchorPane layout) {
+    private void updateTextStatistics() {
         if (sText != null) {
             layout.getChildren().removeAll(sText, iText, rText, dayText);
         }
@@ -211,13 +189,13 @@ public class SimulationPageView {
         rText.setX(135);  // Координата X текста
         rText.setY(445);  // Координата Y текста
 
-        layout.getChildren().add(sText);
-        layout.getChildren().add(iText);
-        layout.getChildren().add(rText);
-        layout.getChildren().add(dayText);
+        this.layout.getChildren().add(sText);
+        this.layout.getChildren().add(iText);
+        this.layout.getChildren().add(rText);
+        this.layout.getChildren().add(dayText);
     }
 
-    private void initPopulation(AnchorPane layout) {
+    private void initPopulation() {
         int circleSize = populationController.countCircleSize(this.N);
         for (int i = 0; i < this.N; i++) {
             Person currentPerson = population.getPerson(i);
@@ -227,15 +205,15 @@ public class SimulationPageView {
             Color personColor = getColorByStatus(currentPerson.getStatus());
 
             Circle circle = new Circle(x, y, circleSize, personColor);
-            layout.getChildren().add(circle);
+            this.layout.getChildren().add(circle);
         }
     }
 
-    private void updateCircles(AnchorPane layout) {
+    private void updateCircles() {
         populationController.movePeople();
         int index = 0;
 
-        for (Node node : layout.getChildren()) {
+        for (Node node : this.layout.getChildren()) {
             if (node instanceof Circle) {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
@@ -263,12 +241,12 @@ public class SimulationPageView {
         }
     }
 
-    private void updateChart(StackedAreaChart<Number, Number> areaChart) {
+    private void updateChart() {
         this.statisticsController.updateStatistics();
 
-        XYChart.Series<Number, Number> susceptibleSeries = areaChart.getData().get(0);
-        XYChart.Series<Number, Number> infectiousSeries = areaChart.getData().get(1);
-        XYChart.Series<Number, Number> recoveredSeries = areaChart.getData().get(2);
+        XYChart.Series<Number, Number> susceptibleSeries = this.diagram.getData().get(0);
+        XYChart.Series<Number, Number> infectiousSeries = this.diagram.getData().get(1);
+        XYChart.Series<Number, Number> recoveredSeries = this.diagram.getData().get(2);
 
         int currentDay = this.graph.getLastDayNum();
         int sCount = this.graph.getLastDay().getDaySusceptible();
@@ -280,7 +258,7 @@ public class SimulationPageView {
         infectiousSeries.getData().add(new XYChart.Data<Number, Number>(currentDay,iCount));
         recoveredSeries.getData().add(new XYChart.Data<Number, Number>(currentDay,rCount));
 
-        NumberAxis xAxis = (NumberAxis) areaChart.getXAxis();
+        NumberAxis xAxis = (NumberAxis) this.diagram.getXAxis();
         xAxis.setUpperBound(currentDay + 1);
 
         if (currentDay < 10) {
@@ -305,7 +283,7 @@ public class SimulationPageView {
 
         // Создаем AreaChart
         StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
-        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/chart_style.css").toExternalForm());
+        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/chart_styles.css").toExternalForm());
 
         // Создаем серии данных для каждой категории
          XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();

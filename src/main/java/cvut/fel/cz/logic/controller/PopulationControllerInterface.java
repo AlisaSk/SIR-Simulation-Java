@@ -31,10 +31,6 @@ public interface PopulationControllerInterface {
      * */
     public void addNewInfectious(int personI, double infectedX, double infectedY, double radius);
 
-    /*
-     * change some I people status to R after infectious period is ended
-     * */
-    public void addNewRecovered();
 
     public int countCircleSize(int N);
 

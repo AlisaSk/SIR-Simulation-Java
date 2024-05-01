@@ -41,7 +41,7 @@ public class PopulationController implements PopulationControllerInterface{
         int yMax = 30 + 380 - this.circleSize;
         int y = throwRandom(yMin, yMax);
 //        !!!!!!!!!!!!!!!!!! change delta in moves so person will have different directions
-        double dx = this.random.nextDouble() * 2 - 1; // Скорость от -5 до 5
+        double dx = this.random.nextDouble() * 2 - 1;
         double dy = this.random.nextDouble() * 2 - 1;
         Person person = new Person(x, y, dx, dy);
         return person;
@@ -95,7 +95,6 @@ public class PopulationController implements PopulationControllerInterface{
 
                 double distance = Math.sqrt(Math.pow(infectedX - suscepX, 2) + Math.pow(infectedY - suscepY, 2));
 
-                // TODO здесь должно быть расстояние которое зависит от размера кружка
                 if (distance > radius * this.circleSize) {
                     continue;
                 }
@@ -105,11 +104,6 @@ public class PopulationController implements PopulationControllerInterface{
                 }
             }
         }
-    }
-
-    @Override
-    public void addNewRecovered() {
-
     }
 
     @Override
@@ -137,12 +131,4 @@ public class PopulationController implements PopulationControllerInterface{
         return tinySize;
     }
 
-//    @Override
-//    public void updateStatistics(int dayNum) {
-//        int countS = population.getSusceptibleQuantity();
-//        int countI = population.getInfectiousQuantity();
-//        int countR = population.getRecoveredQuantity();
-//        Day day = new Day(dayNum, countS, countI, countR);
-//        this.graph.addNewDay(day);
-//    }
 }
