@@ -21,5 +21,8 @@ public class SimulationPageController {
     }
 
     public void updateSimulation() {
+        // в целом пока похуй
+
+
     }
 }
