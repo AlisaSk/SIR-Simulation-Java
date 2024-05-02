@@ -33,7 +33,8 @@
 /* Axis (x and y) styles */
 .axis-label {
     -fx-text-fill: #9b9c9e;
-    -fx-font-family: "Times New Roman";
+    -fx-font-family: "Courier New";
+    -fx-font-weight: 700;
 }
 
 /* Invisible backdround lines */

@@ -48,6 +48,7 @@ public class SimulationPageView {
     }
 
     public AnchorPane createSimulationWindow() {
+        // divide to 2 sep func: createSimulationArea and createStatisticsArea
         this.layout = new AnchorPane();
         layout.setStyle("-fx-background-color: #232324;");
         this.drawLines();
@@ -125,8 +126,8 @@ public class SimulationPageView {
         Text rText = new Text("Recovered: ");
         Text dayText = new Text("Day: ");
 
-        Font font = Font.font("Times New Roman", 20);
-        Color color = Color.web("#9b9c9e");
+        Font font = Font.font("Courier New", 20);
+        Color color = Color.web("#f2f0f0");
 
         dayText.setFont(font);
         sText.setFont(font);
@@ -167,8 +168,8 @@ public class SimulationPageView {
         this.iText = new Text(String.valueOf(iCount));
         this.rText = new Text(String.valueOf(rCount));
 
-        Font font = Font.font("Times New Roman", 20);
-        Color color = Color.web("#9b9c9e");
+        Font font = Font.font("Courier New", 20);
+        Color color = Color.web("#f2f0f0");
 
         dayText.setFont(font);
         sText.setFont(font);
@@ -180,14 +181,14 @@ public class SimulationPageView {
         iText.setFill(color);
         rText.setFill(color);
 
-        dayText.setX(90);  // Координата X текста
+        dayText.setX(90);
         dayText.setY(355);
-        sText.setX(140);  // Координата X текста
-        sText.setY(385);  // Координата Y текста
-        iText.setX(130);  // Координата X текста
-        iText.setY(415);  // Координата Y текста
-        rText.setX(135);  // Координата X текста
-        rText.setY(445);  // Координата Y текста
+        sText.setX(188);
+        sText.setY(385);
+        iText.setX(170);
+        iText.setY(415);
+        rText.setX(165);
+        rText.setY(445);
 
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);

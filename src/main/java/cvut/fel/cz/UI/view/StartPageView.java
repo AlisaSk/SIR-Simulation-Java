@@ -24,17 +24,12 @@ public class StartPageView {
 
     @FXML
     void start(ActionEvent event) throws IOException {
-        Population population = new Population(); // model
-        Graph graph = new Graph(population);
-        int N = 250;
-        PopulationController populationController = new PopulationController(population, N); // Population controller
-        StatisticsController statisticsController = new StatisticsController(graph); // Statistics controller
-        SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController, N); // Simulation Page view
-        Scene simulationScene = simulationPageView.start();
+        ParametersPageView parametersPageView = new ParametersPageView();
+        Scene parametersScene = parametersPageView.start();
 
         Node source = (Node) event.getSource();
         Stage currentStage = (Stage) source.getScene().getWindow();
-        currentStage.setScene(simulationScene); // closing previous page
+        currentStage.setScene(parametersScene); // closing previous page
     }
 
 //    @FXML
