@@ -4,26 +4,39 @@ import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.population.Population;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.event.ActionEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 public class ParametersPageView {
     private AnchorPane layout;
+    private Map<String, Control> inputFields = new HashMap<>();
+
     public Scene start() {
         Button startButton = this.createStartButton();
         this.layout = new AnchorPane(startButton);
         Scene scene = new Scene(layout, 800, 500);
         this.addTitle();
         this.addParameters();
-        this.addTextFields();
         scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/paramPage_styles.css").toExternalForm());
         return scene;
     }
@@ -53,6 +66,10 @@ public class ParametersPageView {
         currentStage.setScene(simulationScene); // closing previous page
     }
 
+    private void getSimulationName(){
+
+    }
+
     public void addTitle() {
         Text title = new Text("Set up initial parameters of the Simulation");
 
@@ -66,32 +83,56 @@ public class ParametersPageView {
 
     public void addParameters() {
         String[] labels = {
-                "Simulation name: ", "People quantity in the population: ",
-                "Probability of the infection transmission: ", "Time of the infectious period: ",
-                "Infection radius: ", "Number of quarantine zones: ",
-                "Capacity of quarantine zones: ", "Number of public places: "
+                "Simulation name*", "People quantity in the population*",
+                "Probability of the infection transmission (%)", "Time of the infectious period",
+                "Infection radius", "Number of quarantine zones",
+                "Capacity of quarantine zones", "Number of public places"
         };
-        int startY = 123;
-        for (String label : labels) {
-            Text text = new Text(label);
-            text.getStyleClass().add("list-text");
-            text.setX(35);
-            text.setY(startY);
-            startY += 32;
-            this.layout.getChildren().add(text);
-        }
 
+        int currentY = 110;
+        for (String label : labels) {
+            Text textParameter = new Text(label + ": ");
+            textParameter.getStyleClass().add("list-text");
+
+            HBox hbox = new HBox(15);
+            hbox.setLayoutX(35);
+            hbox.setLayoutY(currentY);
+            currentY += 32;
+
+            if (Objects.equals(label, labels[4])) {
+                ChoiceBox<String> choiceBox = setChoiceBox();
+                hbox.getChildren().addAll(textParameter, choiceBox);
+                HBox.setMargin(choiceBox, new Insets(-10, 0, 0, 0));
+                this.inputFields.put(label, choiceBox);
+            } else {
+                TextField textField = new TextField();
+                textField.setAlignment(Pos.CENTER);
+                this.setFieldStyles(labels, label, textField);
+                hbox.getChildren().addAll(textParameter, textField);
+                HBox.setMargin(textField, new Insets(-10, 0, 0, 0));
+                inputFields.put(label, textField);
+            }
+
+            this.layout.getChildren().add(hbox);
+        }
     }
 
-    public void addTextFields() {
-        // maybe later parameters and their text should be added into 1 box
-        TextField textField = new TextField();
-        textField.setPromptText("700");
-        textField.setAlignment(Pos.CENTER);
-        textField.setLayoutX(400);
-        textField.setLayoutY(96);
+    public void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
+        if (Objects.equals(currentLabel, labels[0]) || Objects.equals(currentLabel, labels[1])) {
+            textField.getStyleClass().add("text-field-mandatory");
+        }
+        else {
+            textField.getStyleClass().add("text-field-optional");
+        }
         textField.getStyleClass().add("text-field");
-        this.layout.getChildren().add(textField);
+    }
+
+    public ChoiceBox<String> setChoiceBox() {
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        choiceBox.getItems().addAll("Small", "Medium", "Large");
+        choiceBox.getStyleClass().add("choice-box");
+        choiceBox.setValue("Medium");
+        return choiceBox;
     }
 
 }

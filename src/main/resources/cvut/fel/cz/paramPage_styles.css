@@ -18,7 +18,38 @@
 }
 
 .text-field {
-    -fx-background-color: rgba(55, 25, 105, 0.5);
+    -fx-prompt-text-fill: #212020;
+    -fx-font-weight: bold;
+    -fx-font-family: "Tahoma";
+    -fx-border-width: 2;
+    -fx-border-radius: 5; 
+    -fx-background-radius: 6;
+}
+
+.text-field-mandatory {
+    -fx-background-color: rgba(247, 64, 110, 0.8);
+    -fx-text-fill: #212020;
+    -fx-border-color: #dbd9d9;
+}
+
+.text-field-optional {
+    -fx-background-color: rgba(113, 113, 201, 0.8);
+    -fx-text-fill: #f2f0f0;
+    -fx-border-color: #dbd9d9;
+}
+
+.choice-box {
+    -fx-font-size: 16px;
+    -fx-font-family: "Tahoma";
+    -fx-background-color: rgba(113, 113, 201, 0.8);
+    -fx-border-color: #dbd9d9;
+    -fx-control-inner-background: rgba(113, 113, 201, 0.8);
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+    -fx-background-radius: 6;
+}
+
+.choice-box .label {
     -fx-text-fill: #f2f0f0;
 }
 

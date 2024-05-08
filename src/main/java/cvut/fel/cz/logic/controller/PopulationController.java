@@ -56,6 +56,7 @@ public class PopulationController implements PopulationControllerInterface{
     @Override
     public void movePeople() {
         for (int i = 0; i < this.population.getQuantity(); i++) {
+            // number of interactions per day can be added as a parameter
             Person currentPerson = this.population.getPerson(i);
 
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
@@ -99,7 +100,7 @@ public class PopulationController implements PopulationControllerInterface{
                     continue;
                 }
 
-                if (this.random.nextDouble() < 0.1) {
+                if (this.random.nextDouble() < 0.02) {
                     personS.changeStatusToInfectious();
                 }
             }
@@ -108,7 +109,7 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public int countCircleSize(int N) {
-        // TODO add the circleSize as the parameter for user
+        // TODO add the circleSize as the parameter for a user
         int largeSize = 25;
         int bigSize = 15;
         int mediumSize = 10;
