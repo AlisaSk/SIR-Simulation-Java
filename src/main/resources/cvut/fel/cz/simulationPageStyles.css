@@ -23,13 +23,19 @@
 /*}*/
 
 
-.chart{
+.chart {
     -fx-background-color: transparent;
     -fx-font-size: 15;
     -fx-text-fill: white;
     -fx-legend-visible: false;
 }
 
+.chart-title {
+    -fx-text-fill: #9b9c9e;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: 700;
+    -fx-underline: true;
+}
 /* Axis (x and y) styles */
 .axis-label {
     -fx-text-fill: #9b9c9e;

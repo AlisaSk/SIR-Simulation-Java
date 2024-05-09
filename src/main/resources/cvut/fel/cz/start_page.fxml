@@ -11,7 +11,7 @@
 <?import javafx.scene.image.Image?>
 
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cvut.fel.cz.UI.view.StartPageView" stylesheets="@startPage_styles.css" styleClass="stack-pane">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cvut.fel.cz.UI.view.StartPageView" stylesheets="@startPageStyles.css" styleClass="stack-pane">
    <children>
       <VBox alignment="TOP_CENTER" layoutX="88.0" layoutY="100.0" prefHeight="200.0" prefWidth="424.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>

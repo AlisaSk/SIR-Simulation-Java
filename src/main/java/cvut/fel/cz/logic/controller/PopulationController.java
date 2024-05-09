@@ -1,7 +1,5 @@
 package cvut.fel.cz.logic.controller;
 
-import cvut.fel.cz.logic.model.graph.Day;
-import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
@@ -12,17 +10,32 @@ import java.util.Random;
 public class PopulationController implements PopulationControllerInterface{
     Random random = new Random();
     private final int circleSize;
-    private final int N;
+    private final int populationQuantity;
     private final Population population;
-    public PopulationController(Population population, int N) {
+    private final double transmissionProb;
+    private final int infectiousTimeDays;
+    private final double infectionRadius;
+    public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
-        this.circleSize = this.countCircleSize(N);
-        this.N = N;
+        this.circleSize = this.countCircleSize(populationQuantity);
+        this.populationQuantity = populationQuantity;
+        this.transmissionProb = (double) transmissionProbPercentage / 100;
+        this.infectiousTimeDays = infectiousTimeDays;
+        this.infectionRadius = infectionRadius;
+    }
+
+    public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, double infectionRadius) {
+        this.population = population;
+        this.circleSize = this.countCircleSize(populationQuantity);
+        this.populationQuantity = populationQuantity;
+        this.transmissionProb = (double) transmissionProbPercentage / 100;
+        this.infectiousTimeDays = 7;
+        this.infectionRadius = infectionRadius;
     }
 
     @Override
     public Population createPopulation() {
-        for (int i = 0; i < this.N; i++) {
+        for (int i = 0; i < this.populationQuantity; i++) {
             Person person = this.createPerson();
             if (i == 0) {
                 person.changeStatusToInfectious();
@@ -43,7 +56,7 @@ public class PopulationController implements PopulationControllerInterface{
 //        !!!!!!!!!!!!!!!!!! change delta in moves so person will have different directions
         double dx = this.random.nextDouble() * 2 - 1;
         double dy = this.random.nextDouble() * 2 - 1;
-        Person person = new Person(x, y, dx, dy);
+        Person person = new Person(x, y, dx, dy, this.infectiousTimeDays);
         return person;
     }
 
@@ -77,7 +90,7 @@ public class PopulationController implements PopulationControllerInterface{
             currentPerson.move(newX, newY);
 
             if (currentPerson.getStatus() == PersonStatus.Infectious) {
-                this.addNewInfectious(i, newX, newY, 1.6);
+                this.addNewInfectious(i, newX, newY, 1.1);
             }
         }
 
@@ -96,11 +109,11 @@ public class PopulationController implements PopulationControllerInterface{
 
                 double distance = Math.sqrt(Math.pow(infectedX - suscepX, 2) + Math.pow(infectedY - suscepY, 2));
 
-                if (distance > radius * this.circleSize) {
+                if (distance > this.infectionRadius * this.circleSize) {
                     continue;
                 }
 
-                if (this.random.nextDouble() < 0.02) {
+                if (this.random.nextDouble() <= transmissionProb) {
                     personS.changeStatusToInfectious();
                 }
             }

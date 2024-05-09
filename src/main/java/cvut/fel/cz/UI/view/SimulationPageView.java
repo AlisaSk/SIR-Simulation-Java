@@ -29,14 +29,12 @@ public class SimulationPageView {
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
     private Text sText, iText, rText, dayText;
-    private final int N;
 
-    public SimulationPageView(PopulationController populationController, StatisticsController statisticsController, int N) {
+    public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         // after adding parameters page they will be given as the parameters here
         // the parameters: N (populationQuantity), R (radius)
         this.populationController = populationController;
         this.statisticsController = statisticsController;
-        this.N = N;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
     }
@@ -197,8 +195,9 @@ public class SimulationPageView {
     }
 
     private void initPopulation() {
-        int circleSize = populationController.countCircleSize(this.N);
-        for (int i = 0; i < this.N; i++) {
+        int populationQuantity = this.population.getQuantity();
+        int circleSize = populationController.countCircleSize(populationQuantity);
+        for (int i = 0; i < populationQuantity; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
             double y = currentPerson.getY();
@@ -241,6 +240,31 @@ public class SimulationPageView {
                 return Color.web("#fcfcfc", 1.0); // В случае неопределенного статуса
         }
     }
+    private StackedAreaChart<Number, Number> createAreaChart() {
+        // Creating X-Axis for representing day's flow
+        NumberAxis xAxis = new NumberAxis(1, 5, 1);
+        xAxis.setLabel("Days");
+
+        int populationQuantity = this.population.getQuantity();
+        // Y-Axis for population
+        NumberAxis yAxis = new NumberAxis(1, populationQuantity, populationQuantity*0.1);
+        yAxis.setLabel("Population");
+
+        // Создаем AreaChart
+        StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
+        areaChart.setTitle(this.statisticsController.getSimulationName());
+        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
+
+        // Создаем серии данных для каждой категории
+        XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> infectedSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> recoveredSeries = new XYChart.Series<>();
+
+        // Добавляем серии в диаграмму
+        areaChart.getData().addAll(susceptibleSeries, infectedSeries, recoveredSeries);
+
+        return areaChart;
+    }
 
     private void updateChart() {
         this.statisticsController.updateStatistics();
@@ -272,29 +296,4 @@ public class SimulationPageView {
             xAxis.setTickUnit(10);
         }
     }
-
-    private StackedAreaChart<Number, Number> createAreaChart() {
-        // Creating X-Axis for representing day's flow
-        NumberAxis xAxis = new NumberAxis(1, 5, 1);
-        xAxis.setLabel("Days");
-
-        // Y-Axis for population
-        NumberAxis yAxis = new NumberAxis(1, this.N, this.N*0.1);
-        yAxis.setLabel("Population");
-
-        // Создаем AreaChart
-        StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
-        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/chart_styles.css").toExternalForm());
-
-        // Создаем серии данных для каждой категории
-         XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();
-         XYChart.Series<Number, Number> infectedSeries = new XYChart.Series<>();
-         XYChart.Series<Number, Number> recoveredSeries = new XYChart.Series<>();
-
-        // Добавляем серии в диаграмму
-        areaChart.getData().addAll(susceptibleSeries, infectedSeries, recoveredSeries);
-
-        return areaChart;
-    }
-
 }

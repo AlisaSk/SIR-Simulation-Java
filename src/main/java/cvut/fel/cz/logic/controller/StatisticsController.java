@@ -7,13 +7,19 @@ import javafx.scene.chart.StackedAreaChart;
 
 public class StatisticsController {
     private Graph graph;
+    private String simulationName;
     /*
      * some functions of the PopulationController will be placed here in order to
      * separate the functions of managing statistics and population
      * (Statistics will be responsible for graph)
      * */
-    public StatisticsController(Graph graph) {
+    public StatisticsController(Graph graph, String simulationName) {
         this.graph = graph;
+        this.simulationName = simulationName;
+    }
+
+    public String getSimulationName() {
+        return this.simulationName;
     }
 
     public void updateStatistics () {
