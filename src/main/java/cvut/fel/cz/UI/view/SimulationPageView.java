@@ -29,14 +29,12 @@ public class SimulationPageView {
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
     private Text sText, iText, rText, dayText;
-    private final int N;
 
-    public SimulationPageView(PopulationController populationController, StatisticsController statisticsController, int N) {
+    public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         // after adding parameters page they will be given as the parameters here
         // the parameters: N (populationQuantity), R (radius)
         this.populationController = populationController;
         this.statisticsController = statisticsController;
-        this.N = N;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
     }
@@ -48,6 +46,7 @@ public class SimulationPageView {
     }
 
     public AnchorPane createSimulationWindow() {
+        // divide to 2 sep func: createSimulationArea and createStatisticsArea
         this.layout = new AnchorPane();
         layout.setStyle("-fx-background-color: #232324;");
         this.drawLines();
@@ -125,8 +124,8 @@ public class SimulationPageView {
         Text rText = new Text("Recovered: ");
         Text dayText = new Text("Day: ");
 
-        Font font = Font.font("Times New Roman", 20);
-        Color color = Color.web("#9b9c9e");
+        Font font = Font.font("Courier New", 20);
+        Color color = Color.web("#f2f0f0");
 
         dayText.setFont(font);
         sText.setFont(font);
@@ -167,8 +166,8 @@ public class SimulationPageView {
         this.iText = new Text(String.valueOf(iCount));
         this.rText = new Text(String.valueOf(rCount));
 
-        Font font = Font.font("Times New Roman", 20);
-        Color color = Color.web("#9b9c9e");
+        Font font = Font.font("Courier New", 20);
+        Color color = Color.web("#f2f0f0");
 
         dayText.setFont(font);
         sText.setFont(font);
@@ -180,14 +179,14 @@ public class SimulationPageView {
         iText.setFill(color);
         rText.setFill(color);
 
-        dayText.setX(90);  // Координата X текста
+        dayText.setX(90);
         dayText.setY(355);
-        sText.setX(140);  // Координата X текста
-        sText.setY(385);  // Координата Y текста
-        iText.setX(130);  // Координата X текста
-        iText.setY(415);  // Координата Y текста
-        rText.setX(135);  // Координата X текста
-        rText.setY(445);  // Координата Y текста
+        sText.setX(188);
+        sText.setY(385);
+        iText.setX(170);
+        iText.setY(415);
+        rText.setX(165);
+        rText.setY(445);
 
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
@@ -196,8 +195,9 @@ public class SimulationPageView {
     }
 
     private void initPopulation() {
-        int circleSize = populationController.countCircleSize(this.N);
-        for (int i = 0; i < this.N; i++) {
+        int populationQuantity = this.population.getQuantity();
+        int circleSize = populationController.countCircleSize(populationQuantity);
+        for (int i = 0; i < populationQuantity; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
             double y = currentPerson.getY();
@@ -240,6 +240,31 @@ public class SimulationPageView {
                 return Color.web("#fcfcfc", 1.0); // В случае неопределенного статуса
         }
     }
+    private StackedAreaChart<Number, Number> createAreaChart() {
+        // Creating X-Axis for representing day's flow
+        NumberAxis xAxis = new NumberAxis(1, 5, 1);
+        xAxis.setLabel("Days");
+
+        int populationQuantity = this.population.getQuantity();
+        // Y-Axis for population
+        NumberAxis yAxis = new NumberAxis(1, populationQuantity, populationQuantity*0.1);
+        yAxis.setLabel("Population");
+
+        // Создаем AreaChart
+        StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
+        areaChart.setTitle(this.statisticsController.getSimulationName());
+        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
+
+        // Создаем серии данных для каждой категории
+        XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> infectedSeries = new XYChart.Series<>();
+        XYChart.Series<Number, Number> recoveredSeries = new XYChart.Series<>();
+
+        // Добавляем серии в диаграмму
+        areaChart.getData().addAll(susceptibleSeries, infectedSeries, recoveredSeries);
+
+        return areaChart;
+    }
 
     private void updateChart() {
         this.statisticsController.updateStatistics();
@@ -271,29 +296,4 @@ public class SimulationPageView {
             xAxis.setTickUnit(10);
         }
     }
-
-    private StackedAreaChart<Number, Number> createAreaChart() {
-        // Creating X-Axis for representing day's flow
-        NumberAxis xAxis = new NumberAxis(1, 5, 1);
-        xAxis.setLabel("Days");
-
-        // Y-Axis for population
-        NumberAxis yAxis = new NumberAxis(1, this.N, this.N*0.1);
-        yAxis.setLabel("Population");
-
-        // Создаем AreaChart
-        StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
-        areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/chart_styles.css").toExternalForm());
-
-        // Создаем серии данных для каждой категории
-         XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();
-         XYChart.Series<Number, Number> infectedSeries = new XYChart.Series<>();
-         XYChart.Series<Number, Number> recoveredSeries = new XYChart.Series<>();
-
-        // Добавляем серии в диаграмму
-        areaChart.getData().addAll(susceptibleSeries, infectedSeries, recoveredSeries);
-
-        return areaChart;
-    }
-
 }

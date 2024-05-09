@@ -8,23 +8,25 @@ public class Person {
     private double delY;
     /* можно радиус в конфиг добавить */
     private final double radius;
+    private int infectiousTimeDays;
 
-    public Person(double x, double y, double delX, double delY, double radius) {
-        this.radius = radius;
-        this.x = x;
-        this.y = y;
-        this.delX = delX;
-        this.delY = delY;
-        this.status = PersonStatus.Susceptible;
-    }
+//    public Person(double x, double y, double delX, double delY, double radius) {
+//        this.radius = radius;
+//        this.x = x;
+//        this.y = y;
+//        this.delX = delX;
+//        this.delY = delY;
+//        this.status = PersonStatus.Susceptible;
+//    }
 
-    public Person(double x, double y, double delX, double delY) {
+    public Person(double x, double y, double delX, double delY, int infectiousTimeDays) {
         this.radius = PersonConfig.radius;
         this.x = x;
         this.y = y;
         this.delX = delX;
         this.delY = delY;
         this.status = PersonStatus.Susceptible;
+        this.infectiousTimeDays = infectiousTimeDays;
     }
 
 
@@ -51,7 +53,7 @@ public class Person {
     private void startRecoveryProcess() {
         Thread recoveryThread = new Thread(() -> {
             try {
-                Thread.sleep(10000); // Sleep for 10 seconds to simulate recovery time
+                Thread.sleep(this.infectiousTimeDays* 1000L); // Sleep for 10 seconds to simulate recovery time
                 this.changeStatusToRecovered();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt(); // Properly handle thread interruption

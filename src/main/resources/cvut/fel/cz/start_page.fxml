@@ -7,11 +7,11 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.StackPane?>
-
-
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cvut.fel.cz.UI.view.StartPageView" stylesheets="@startPage_styles.css" styleClass="stack-pane">
+
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cvut.fel.cz.UI.view.StartPageView" stylesheets="@startPageStyles.css" styleClass="stack-pane">
    <children>
       <VBox alignment="TOP_CENTER" layoutX="88.0" layoutY="100.0" prefHeight="200.0" prefWidth="424.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -23,7 +23,7 @@
                   <Insets top="160" />
                </VBox.margin>
             </Text>
-            <Button mnemonicParsing="false" onAction="#start" prefHeight="60.0" prefWidth="143.0" style="-fx-background-color: rgba(140, 140, 255, 0.85);" text="START" textAlignment="CENTER" textFill="WHITE">
+            <Button mnemonicParsing="false" onAction="#start" prefHeight="60.0" prefWidth="143.0" styleClass="button-text" style="-fx-background-color: rgba(140, 140, 255, 0.85);" text="START" textAlignment="CENTER" >
                <font>
                   <Font size="40.0" />
                </font>
