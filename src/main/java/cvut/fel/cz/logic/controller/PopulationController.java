@@ -17,7 +17,7 @@ public class PopulationController implements PopulationControllerInterface{
     private final double infectionRadius;
     public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
-        this.circleSize = this.countCircleSize();
+        this.circleSize = this.countCircleSize(populationQuantity);
         this.populationQuantity = populationQuantity;
         this.transmissionProb = (double) transmissionProbPercentage / 100;
         this.infectiousTimeDays = infectiousTimeDays;
@@ -26,7 +26,7 @@ public class PopulationController implements PopulationControllerInterface{
 
     public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, double infectionRadius) {
         this.population = population;
-        this.circleSize = this.countCircleSize();
+        this.circleSize = this.countCircleSize(populationQuantity);
         this.populationQuantity = populationQuantity;
         this.transmissionProb = (double) transmissionProbPercentage / 100;
         this.infectiousTimeDays = 7;
@@ -119,8 +119,7 @@ public class PopulationController implements PopulationControllerInterface{
     }
 
     @Override
-    public int countCircleSize() {
-        int N = this.populationQuantity;
+    public int countCircleSize(int N) {
         // TODO add the circleSize as the parameter for a user
         int largeSize = 25;
         int bigSize = 15;

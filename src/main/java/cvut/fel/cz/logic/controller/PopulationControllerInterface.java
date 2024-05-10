@@ -32,6 +32,6 @@ public interface PopulationControllerInterface {
     public void addNewInfectious(int personI, double infectedX, double infectedY);
 
 
-    public int countCircleSize();
+    public int countCircleSize(int N);
 
 }

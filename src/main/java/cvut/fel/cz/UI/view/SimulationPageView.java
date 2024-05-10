@@ -196,7 +196,7 @@ public class SimulationPageView {
 
     private void initPopulation() {
         int populationQuantity = this.population.getQuantity();
-        int circleSize = populationController.countCircleSize();
+        int circleSize = populationController.countCircleSize(populationQuantity);
         for (int i = 0; i < populationQuantity; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
