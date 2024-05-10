@@ -196,7 +196,7 @@ public class SimulationPageView {
 
     private void initPopulation() {
         int populationQuantity = this.population.getQuantity();
-        int circleSize = populationController.countCircleSize(populationQuantity);
+        int circleSize = populationController.countCircleSize();
         for (int i = 0; i < populationQuantity; i++) {
             Person currentPerson = population.getPerson(i);
             double x = currentPerson.getX();
@@ -292,8 +292,10 @@ public class SimulationPageView {
             xAxis.setTickUnit(2);
         } else if (currentDay < 50) {
             xAxis.setTickUnit(5);
-        } else {
+        }else if (currentDay < 100) {
             xAxis.setTickUnit(10);
+        } else {
+            xAxis.setTickUnit(50);
         }
     }
 }

@@ -51,6 +51,8 @@
     -fx-stroke: transparent;
 }
 
+.chart-area-symbol{-fx-background-radius: 10;}
+
 .axis {
     -fx-tick-label-fill: #9b9c9e;
     -fx-minor-tick-length: 1;

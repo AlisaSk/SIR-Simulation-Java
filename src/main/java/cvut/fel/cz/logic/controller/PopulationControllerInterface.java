@@ -29,9 +29,9 @@ public interface PopulationControllerInterface {
      * change some people status in the population according to their contact with other I
      * (will be used radius of the infection and contacting time)
      * */
-    public void addNewInfectious(int personI, double infectedX, double infectedY, double radius);
+    public void addNewInfectious(int personI, double infectedX, double infectedY);
 
 
-    public int countCircleSize(int N);
+    public int countCircleSize();
 
 }

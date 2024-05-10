@@ -98,7 +98,7 @@ public class ParametersPageView {
     private String getSimulationName(){
         String key = "Simulation name*";
         String simulationName = ((TextField) inputFields.get(key)).getText();
-        if (simulationName.isEmpty() || simulationName.length() >= 20 || !simulationName.matches("^[a-zA-Z0-9]+$")) {
+        if (simulationName.isEmpty() || simulationName.length() >= 20 || !simulationName.matches("^[a-zA-Z0-9-_]+$")) {
             this.setErrorStyles(key);
             return "";
         }
@@ -133,6 +133,7 @@ public class ParametersPageView {
     private int getParameterValue(String key, int fromInclusive, int toInclusive, boolean isMandatory) {
         String populationQuantityStr = ((TextField) inputFields.get(key)).getText();
         if (Objects.equals(populationQuantityStr, "") && !isMandatory) {
+            this.setFineStyles(key);
             return 0;
         }
         try {
@@ -149,7 +150,7 @@ public class ParametersPageView {
         }
     }
 
-    public void addTitle() {
+    private void addTitle() {
         Text title = new Text("Set up initial parameters of the Simulation");
 
         title.getStyleClass().add("title-text");
@@ -160,7 +161,7 @@ public class ParametersPageView {
         this.layout.getChildren().add(title);
     }
 
-    public void addParameters() {
+    private void addParameters() {
         String[] labels = {
                 "Simulation name*", "People quantity in the population*",
                 "Probability of the infection transmission (%)*", "Time of the infectious period (days)",
@@ -197,7 +198,7 @@ public class ParametersPageView {
         }
     }
 
-    public void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
+    private void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
         if (Objects.equals(currentLabel, labels[0]) || Objects.equals(currentLabel, labels[1]) || Objects.equals(currentLabel, labels[2])) {
             textField.getStyleClass().add("text-field-mandatory");
         }
@@ -207,7 +208,7 @@ public class ParametersPageView {
         textField.getStyleClass().add("text-field");
     }
 
-    public ChoiceBox<String> setChoiceBox() {
+    private ChoiceBox<String> setChoiceBox() {
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Small", "Medium", "Large");
         choiceBox.getStyleClass().add("choice-box");

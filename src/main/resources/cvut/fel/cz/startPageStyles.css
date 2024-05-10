@@ -5,7 +5,7 @@
 }
 
 .stack-pane {
-    -fx-background-image: url('start_bg.jpg');
+    -fx-background-image: url('start_background.jpg');
     -fx-background-repeat: stretch;
     -fx-background-size: cover;
 }
