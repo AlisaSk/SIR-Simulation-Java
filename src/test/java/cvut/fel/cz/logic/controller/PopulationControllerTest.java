@@ -119,14 +119,14 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-//    @org.junit.jupiter.api.Test
-//    void countCircleSize() {
-//        int expected = 10; // medium size for populationQ = 100
-//
-//        Population population = new Population();
-//        PopulationController populationController = new PopulationController(population, 100, 0, 0);
-//        int actual = populationController.countCircleSize();
-//
-//        assertEquals(expected, actual);
-//    }
+    @org.junit.jupiter.api.Test
+    void countCircleSize() {
+        int expected = 10; // medium size for populationQ = 100
+
+        Population population = new Population();
+        PopulationController populationController = new PopulationController(population, 100, 0, 0);
+        int actual = populationController.countCircleSize(100);
+
+        assertEquals(expected, actual);
+    }
 }

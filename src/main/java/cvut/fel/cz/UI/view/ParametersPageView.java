@@ -9,10 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -27,7 +24,7 @@ import java.util.Objects;
 public class ParametersPageView {
     private AnchorPane layout;
     private final Map<String, Control> inputFields = new HashMap<>();
-    private final Map<String, Text> labels = new HashMap<>();
+    private final Map<String, Text> labelsText = new HashMap<>();
 
     public Scene start() {
         Button startButton = this.createStartButton();
@@ -118,14 +115,14 @@ public class ParametersPageView {
     }
 
     private void setErrorStyles(String key) {
-        labels.get(key).getStyleClass().removeAll("list-text");
-        labels.get(key).getStyleClass().add("error-text");
+        labelsText.get(key).getStyleClass().removeAll("list-text");
+        labelsText.get(key).getStyleClass().add("error-text");
         inputFields.get(key).getStyleClass().add("text-field-error");
     }
 
     private void setFineStyles(String key) {
-        labels.get(key).getStyleClass().removeAll("error-text");
-        labels.get(key).getStyleClass().add("list-text");
+        labelsText.get(key).getStyleClass().removeAll("error-text");
+        labelsText.get(key).getStyleClass().add("list-text");
         inputFields.get(key).getStyleClass().removeAll("text-field-error");
         inputFields.get(key).getStyleClass().add("text-field");
     }
@@ -170,10 +167,13 @@ public class ParametersPageView {
         };
 
         int currentY = 110;
-        for (String label : labels) {
+        for (int i = 0; i < labels.length; i++) {
+            String label = labels[i];
             Text textParameter = new Text(label + ": ");
             textParameter.getStyleClass().add("list-text");
-            this.labels.put(label, textParameter);
+            this.labelsText.put(label, textParameter);
+
+            this.createTooltip(textParameter, i);
 
             HBox hbox = new HBox(15);
             hbox.setLayoutX(35);
@@ -196,6 +196,19 @@ public class ParametersPageView {
 
             this.layout.getChildren().add(hbox);
         }
+    }
+
+    private void createTooltip (Text label, int index) {
+        String[] descriptions = {
+                "REQUIRED: Use only latin, <= 20 symbols", "REQUIRED: Required range is <2, 1500>",
+                "REQUIRED: Percentage must be in range <1, 100>", "OPTIONAL: Infectious period must be in range <1, 30>. DEFAULT: 7 days",
+                "OPTIONAL: Choose the radius :). DEFAULT: medium", "(doesn't work)Number of quarantine zones",
+                "(doesn't work)Capacity of quarantine zones", "(doesn't work)Number of public places"
+        };
+
+        Tooltip tooltip = new Tooltip(descriptions[index]);
+        tooltip.setStyle("tooltip");
+        Tooltip.install(label, tooltip);
     }
 
     private void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
