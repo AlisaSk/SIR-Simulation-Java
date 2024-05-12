@@ -57,9 +57,6 @@ public class Person {
         return status;
     }
 
-    /*
-    * спросить у шереди что лучше: сделать паблик поля или геттеры для переменных
-    * */
     public double getX() {
         return this.x;
     }

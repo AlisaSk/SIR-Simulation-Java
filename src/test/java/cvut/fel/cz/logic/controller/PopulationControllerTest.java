@@ -8,12 +8,14 @@ import cvut.fel.cz.logic.model.population.Population;
 
 class PopulationControllerTest {
 
+
+
     @org.junit.jupiter.api.Test
     void createPopulation_checkQuantity() {
         int expected = 5;
 
         Population population = new Population();
-        PopulationController populationController = new PopulationController(population, expected, 0, 0);
+        PopulationController populationController = new PopulationController(population, 5, 0, 0);
         populationController.createPopulation();
         int actual = population.getQuantity(); // check if all people were added
 
@@ -89,13 +91,15 @@ class PopulationControllerTest {
 
             boolean isValidX = x >= 400 + circleSize && x <= 400 + 380 - circleSize;
             boolean isValidY = y >= 30 + circleSize && y <= 30 + 380 - circleSize;
-            if (!isValidX || !isValidY) {
-                actual = -1;
-                break;
-            }
+
+            assertTrue(isValidX && isValidY);
+//            if (!isValidX || !isValidY) {
+//                actual = -1;
+//                break;
+//            }
         }
 
-        assertEquals(expected, actual);
+//        assertEquals(expected, actual);
     }
 
     @org.junit.jupiter.api.Test

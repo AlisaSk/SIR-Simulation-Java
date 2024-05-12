@@ -120,7 +120,6 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public int countCircleSize(int N) {
-        // TODO add the circleSize as the parameter for a user
         int largeSize = 25;
         int bigSize = 15;
         int mediumSize = 10;

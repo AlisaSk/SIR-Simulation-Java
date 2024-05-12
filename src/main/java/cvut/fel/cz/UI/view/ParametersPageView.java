@@ -44,6 +44,7 @@ public class ParametersPageView {
         startButton.setPrefHeight(65);
         startButton.setPrefWidth(140);
         startButton.setOnAction(this::handleButtonAction);
+        // button animation when it is pressed
         startButton.setOnMousePressed(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(100), startButton);
             st.setToX(0.95);
@@ -65,19 +66,21 @@ public class ParametersPageView {
         int transmissionProb = this.getParameterValue("Probability of the infection transmission (%)*", 1, 100, true);
         int infectiousPeriod = this.getParameterValue("Time of the infectious period (days)", 1, 30, false);
         double infectionRadius = this.getRadius();
+
+        //checking if fields are filled correctly
         boolean errorCondition = Objects.equals(simulationName, "") || populationQuantity == -1 || transmissionProb == -1 || infectiousPeriod == -1;
         if (errorCondition) {
             return;
         }
 
-        Scene simulationScene = getSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius);
+        Scene simulationScene = setSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius);
 
         Node source = (Node) event.getSource();
         Stage currentStage = (Stage) source.getScene().getWindow();
         currentStage.setScene(simulationScene); // closing previous page
     }
 
-    private static Scene getSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius) {
+    private static Scene setSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius) {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
         PopulationController populationController;
@@ -102,6 +105,7 @@ public class ParametersPageView {
         this.setFineStyles(key);
         return simulationName;
     }
+
     private double getRadius() {
         String key = "Infection radius";
         ChoiceBox<String> choiceBox = (ChoiceBox<String>) inputFields.get(key);
@@ -207,7 +211,7 @@ public class ParametersPageView {
         };
 
         Tooltip tooltip = new Tooltip(descriptions[index]);
-        // tooltip.setStyle("tooltip") -- this one has too many warning, probably due to the .setStyle method
+        // tooltip.setStyle("tooltip") -- this one has too many warnings, probably due to the .setStyle method
         tooltip.setStyle("-fx-background-color: rgba(173, 167, 194, 0.6); -fx-text-fill: #282829;");
         Tooltip.install(label, tooltip);
     }
