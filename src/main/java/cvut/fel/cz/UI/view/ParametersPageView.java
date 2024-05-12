@@ -207,7 +207,8 @@ public class ParametersPageView {
         };
 
         Tooltip tooltip = new Tooltip(descriptions[index]);
-        tooltip.setStyle("tooltip");
+        // tooltip.setStyle("tooltip") -- this one has too many warning, probably due to the .setStyle method
+        tooltip.setStyle("-fx-background-color: rgba(173, 167, 194, 0.6); -fx-text-fill: #282829;");
         Tooltip.install(label, tooltip);
     }
 
