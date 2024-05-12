@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Graph {
-    private List<Day> days;
+    private final List<Day> days;
 
     private int lastDay;
-    private Population population;
+    private final Population population;
 
     public Graph(Population population) {
         days = new ArrayList<>();

@@ -9,10 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -27,7 +24,7 @@ import java.util.Objects;
 public class ParametersPageView {
     private AnchorPane layout;
     private final Map<String, Control> inputFields = new HashMap<>();
-    private final Map<String, Text> labels = new HashMap<>();
+    private final Map<String, Text> labelsText = new HashMap<>();
 
     public Scene start() {
         Button startButton = this.createStartButton();
@@ -47,6 +44,7 @@ public class ParametersPageView {
         startButton.setPrefHeight(65);
         startButton.setPrefWidth(140);
         startButton.setOnAction(this::handleButtonAction);
+        // button animation when it is pressed
         startButton.setOnMousePressed(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(100), startButton);
             st.setToX(0.95);
@@ -68,19 +66,21 @@ public class ParametersPageView {
         int transmissionProb = this.getParameterValue("Probability of the infection transmission (%)*", 1, 100, true);
         int infectiousPeriod = this.getParameterValue("Time of the infectious period (days)", 1, 30, false);
         double infectionRadius = this.getRadius();
+
+        //checking if fields are filled correctly
         boolean errorCondition = Objects.equals(simulationName, "") || populationQuantity == -1 || transmissionProb == -1 || infectiousPeriod == -1;
         if (errorCondition) {
             return;
         }
 
-        Scene simulationScene = getSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius);
+        Scene simulationScene = setSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius);
 
         Node source = (Node) event.getSource();
         Stage currentStage = (Stage) source.getScene().getWindow();
         currentStage.setScene(simulationScene); // closing previous page
     }
 
-    private static Scene getSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius) {
+    private static Scene setSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius) {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
         PopulationController populationController;
@@ -98,13 +98,14 @@ public class ParametersPageView {
     private String getSimulationName(){
         String key = "Simulation name*";
         String simulationName = ((TextField) inputFields.get(key)).getText();
-        if (simulationName.isEmpty() || simulationName.length() >= 20 || !simulationName.matches("^[a-zA-Z0-9]+$")) {
+        if (simulationName.isEmpty() || simulationName.length() >= 20 || !simulationName.matches("^[a-zA-Z0-9-_]+$")) {
             this.setErrorStyles(key);
             return "";
         }
         this.setFineStyles(key);
         return simulationName;
     }
+
     private double getRadius() {
         String key = "Infection radius";
         ChoiceBox<String> choiceBox = (ChoiceBox<String>) inputFields.get(key);
@@ -118,14 +119,14 @@ public class ParametersPageView {
     }
 
     private void setErrorStyles(String key) {
-        labels.get(key).getStyleClass().removeAll("list-text");
-        labels.get(key).getStyleClass().add("error-text");
+        labelsText.get(key).getStyleClass().removeAll("list-text");
+        labelsText.get(key).getStyleClass().add("error-text");
         inputFields.get(key).getStyleClass().add("text-field-error");
     }
 
     private void setFineStyles(String key) {
-        labels.get(key).getStyleClass().removeAll("error-text");
-        labels.get(key).getStyleClass().add("list-text");
+        labelsText.get(key).getStyleClass().removeAll("error-text");
+        labelsText.get(key).getStyleClass().add("list-text");
         inputFields.get(key).getStyleClass().removeAll("text-field-error");
         inputFields.get(key).getStyleClass().add("text-field");
     }
@@ -133,6 +134,7 @@ public class ParametersPageView {
     private int getParameterValue(String key, int fromInclusive, int toInclusive, boolean isMandatory) {
         String populationQuantityStr = ((TextField) inputFields.get(key)).getText();
         if (Objects.equals(populationQuantityStr, "") && !isMandatory) {
+            this.setFineStyles(key);
             return 0;
         }
         try {
@@ -149,7 +151,7 @@ public class ParametersPageView {
         }
     }
 
-    public void addTitle() {
+    private void addTitle() {
         Text title = new Text("Set up initial parameters of the Simulation");
 
         title.getStyleClass().add("title-text");
@@ -160,7 +162,7 @@ public class ParametersPageView {
         this.layout.getChildren().add(title);
     }
 
-    public void addParameters() {
+    private void addParameters() {
         String[] labels = {
                 "Simulation name*", "People quantity in the population*",
                 "Probability of the infection transmission (%)*", "Time of the infectious period (days)",
@@ -169,10 +171,13 @@ public class ParametersPageView {
         };
 
         int currentY = 110;
-        for (String label : labels) {
+        for (int i = 0; i < labels.length; i++) {
+            String label = labels[i];
             Text textParameter = new Text(label + ": ");
             textParameter.getStyleClass().add("list-text");
-            this.labels.put(label, textParameter);
+            this.labelsText.put(label, textParameter);
+
+            this.createTooltip(textParameter, i);
 
             HBox hbox = new HBox(15);
             hbox.setLayoutX(35);
@@ -197,7 +202,21 @@ public class ParametersPageView {
         }
     }
 
-    public void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
+    private void createTooltip (Text label, int index) {
+        String[] descriptions = {
+                "REQUIRED: Use only latin, <= 20 symbols", "REQUIRED: Required range is <2, 1500>",
+                "REQUIRED: Percentage must be in range <1, 100>", "OPTIONAL: Infectious period must be in range <1, 30>. DEFAULT: 7 days",
+                "OPTIONAL: Choose the radius :). DEFAULT: medium", "(doesn't work)Number of quarantine zones",
+                "(doesn't work)Capacity of quarantine zones", "(doesn't work)Number of public places"
+        };
+
+        Tooltip tooltip = new Tooltip(descriptions[index]);
+        // tooltip.setStyle("tooltip") -- this one has too many warnings, probably due to the .setStyle method
+        tooltip.setStyle("-fx-background-color: rgba(173, 167, 194, 0.6); -fx-text-fill: #282829;");
+        Tooltip.install(label, tooltip);
+    }
+
+    private void setFieldStyles(String[] labels, String currentLabel, TextField textField) {
         if (Objects.equals(currentLabel, labels[0]) || Objects.equals(currentLabel, labels[1]) || Objects.equals(currentLabel, labels[2])) {
             textField.getStyleClass().add("text-field-mandatory");
         }
@@ -207,7 +226,7 @@ public class ParametersPageView {
         textField.getStyleClass().add("text-field");
     }
 
-    public ChoiceBox<String> setChoiceBox() {
+    private ChoiceBox<String> setChoiceBox() {
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Small", "Medium", "Large");
         choiceBox.getStyleClass().add("choice-box");

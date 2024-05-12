@@ -1,10 +1,16 @@
 .root {
-    -fx-background-image: url('background_1.jpg');
+    -fx-background-image: url('parameters_background.jpg');
     -fx-background-repeat: no-repeat;
     -fx-background-size: cover;
     -fx-background-position: center center;
     -fx-font-family: "Courier New";
 }
+
+.tooltip {
+    -fx-background-color: rgba(173, 167, 194, 0.6);
+    -fx-text-fill: #282829;
+}
+
 
 .title-text {
     -fx-font-size: 29px;

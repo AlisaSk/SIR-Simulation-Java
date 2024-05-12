@@ -53,7 +53,6 @@ public class PopulationController implements PopulationControllerInterface{
         int yMin = 30 + this.circleSize;
         int yMax = 30 + 380 - this.circleSize;
         int y = throwRandom(yMin, yMax);
-//        !!!!!!!!!!!!!!!!!! change delta in moves so person will have different directions
         double dx = this.random.nextDouble() * 2 - 1;
         double dy = this.random.nextDouble() * 2 - 1;
         Person person = new Person(x, y, dx, dy, this.infectiousTimeDays);
@@ -69,7 +68,6 @@ public class PopulationController implements PopulationControllerInterface{
     @Override
     public void movePeople() {
         for (int i = 0; i < this.population.getQuantity(); i++) {
-            // number of interactions per day can be added as a parameter
             Person currentPerson = this.population.getPerson(i);
 
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
@@ -90,14 +88,14 @@ public class PopulationController implements PopulationControllerInterface{
             currentPerson.move(newX, newY);
 
             if (currentPerson.getStatus() == PersonStatus.Infectious) {
-                this.addNewInfectious(i, newX, newY, 1.1);
+                this.addNewInfectious(i, newX, newY);
             }
         }
 
     }
 
     @Override
-    public void addNewInfectious(int personI, double infectedX, double infectedY, double radius) {
+    public void addNewInfectious(int personI, double infectedX, double infectedY) {
         for (int i = 0; i < this.population.getQuantity(); i++) {
             if (i == personI) {
                 continue;
@@ -122,7 +120,6 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public int countCircleSize(int N) {
-        // TODO add the circleSize as the parameter for a user
         int largeSize = 25;
         int bigSize = 15;
         int mediumSize = 10;

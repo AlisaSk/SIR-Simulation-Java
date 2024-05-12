@@ -6,21 +6,9 @@ public class Person {
     private double y;
     private double delX;
     private double delY;
-    /* можно радиус в конфиг добавить */
-    private final double radius;
-    private int infectiousTimeDays;
-
-//    public Person(double x, double y, double delX, double delY, double radius) {
-//        this.radius = radius;
-//        this.x = x;
-//        this.y = y;
-//        this.delX = delX;
-//        this.delY = delY;
-//        this.status = PersonStatus.Susceptible;
-//    }
+    private final int infectiousTimeDays;
 
     public Person(double x, double y, double delX, double delY, int infectiousTimeDays) {
-        this.radius = PersonConfig.radius;
         this.x = x;
         this.y = y;
         this.delX = delX;
@@ -69,9 +57,6 @@ public class Person {
         return status;
     }
 
-    /*
-    * спросить у шереди что лучше: сделать паблик поля или геттеры для переменных
-    * */
     public double getX() {
         return this.x;
     }

@@ -1,13 +1,11 @@
 package cvut.fel.cz.logic.controller;
 
-import cvut.fel.cz.logic.model.graph.Day;
 import cvut.fel.cz.logic.model.graph.Graph;
-import cvut.fel.cz.logic.model.population.Population;
-import javafx.scene.chart.StackedAreaChart;
+
 
 public class StatisticsController {
-    private Graph graph;
-    private String simulationName;
+    private final Graph graph;
+    private final String simulationName;
     /*
      * some functions of the PopulationController will be placed here in order to
      * separate the functions of managing statistics and population

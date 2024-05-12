@@ -31,8 +31,6 @@ public class SimulationPageView {
     private Text sText, iText, rText, dayText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
-        // after adding parameters page they will be given as the parameters here
-        // the parameters: N (populationQuantity), R (radius)
         this.populationController = populationController;
         this.statisticsController = statisticsController;
         this.population = this.populationController.createPopulation();// instance of population
@@ -46,26 +44,15 @@ public class SimulationPageView {
     }
 
     public AnchorPane createSimulationWindow() {
-        // divide to 2 sep func: createSimulationArea and createStatisticsArea
         this.layout = new AnchorPane();
         layout.setStyle("-fx-background-color: #232324;");
         this.drawLines();
 
-        Rectangle populationBoard = this.setPopulationBoard();
-        layout.getChildren().add(populationBoard);
-        AnchorPane.setTopAnchor(populationBoard, 30.0);
-        AnchorPane.setRightAnchor(populationBoard, 20.0);
+        // creating simulation area
+        this.createSimulationArea();
 
-        this.diagram = this.createAreaChart();
-        layout.getChildren().add(diagram);
-
-        diagram.setPrefSize(400, 300);
-        AnchorPane.setTopAnchor(diagram, 20.0);
-        AnchorPane.setLeftAnchor(diagram, -10.0);
-
-        this.initPopulation();
-        this.addTextStatistics();
-        this.updateChart();
+        // creating statistics area
+        this.createStatisticsArea();
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -81,6 +68,27 @@ public class SimulationPageView {
         timer.start();
 
         return layout;
+    }
+
+    private void createSimulationArea() {
+        Rectangle populationBoard = this.setPopulationBoard();
+        this.layout.getChildren().add(populationBoard);
+        AnchorPane.setTopAnchor(populationBoard, 30.0);
+        AnchorPane.setRightAnchor(populationBoard, 20.0);
+
+        this.initPopulationCircles();
+    }
+
+    private void createStatisticsArea() {
+        this.diagram = this.createAreaChart();
+        layout.getChildren().add(diagram);
+
+        diagram.setPrefSize(400, 300);
+        AnchorPane.setTopAnchor(diagram, 20.0);
+        AnchorPane.setLeftAnchor(diagram, -10.0);
+
+        this.addTextStatistics();
+        this.updateChart();
     }
 
     private Rectangle setPopulationBoard() {
@@ -194,7 +202,7 @@ public class SimulationPageView {
         this.layout.getChildren().add(dayText);
     }
 
-    private void initPopulation() {
+    private void initPopulationCircles() {
         int populationQuantity = this.population.getQuantity();
         int circleSize = populationController.countCircleSize(populationQuantity);
         for (int i = 0; i < populationQuantity; i++) {
@@ -240,6 +248,7 @@ public class SimulationPageView {
                 return Color.web("#fcfcfc", 1.0); // В случае неопределенного статуса
         }
     }
+
     private StackedAreaChart<Number, Number> createAreaChart() {
         // Creating X-Axis for representing day's flow
         NumberAxis xAxis = new NumberAxis(1, 5, 1);
@@ -292,8 +301,10 @@ public class SimulationPageView {
             xAxis.setTickUnit(2);
         } else if (currentDay < 50) {
             xAxis.setTickUnit(5);
-        } else {
+        }else if (currentDay < 100) {
             xAxis.setTickUnit(10);
+        } else {
+            xAxis.setTickUnit(50);
         }
     }
 }
