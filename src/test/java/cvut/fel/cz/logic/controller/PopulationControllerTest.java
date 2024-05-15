@@ -8,8 +8,6 @@ import cvut.fel.cz.logic.model.population.Population;
 
 class PopulationControllerTest {
 
-
-
     @org.junit.jupiter.api.Test
     void createPopulation_checkQuantity() {
         int expected = 5;

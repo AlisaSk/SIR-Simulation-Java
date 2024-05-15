@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Population {
-    /*спросить где лучше генерировать персонов */
 
     private List<Person> population;
 
