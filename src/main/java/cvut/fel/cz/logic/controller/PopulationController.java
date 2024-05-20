@@ -4,50 +4,46 @@ import cvut.fel.cz.logic.model.hubs.PublicPlaces;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
-import javafx.animation.KeyFrame;
-import javafx.animation.PathTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.util.Duration;
 
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class PopulationController implements PopulationControllerInterface{
     Random random = new Random();
     private final int circleSize;
     private final int populationQuantity;
     private final Population population;
-    private final PublicPlaces publicPlaces;
+    private final PublicPlaces publicPlace;
     private final double transmissionProb;
     private final int infectiousTimeDays;
     private final double infectionRadius;
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProbPercentage, int infectiousTimeDays, double infectionRadius) {
-        this.population = population;
+
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
         this.circleSize = this.countCircleSize(populationQuantity);
+        this.population = population;
+        this.publicPlace = publicPlaces;
         this.populationQuantity = populationQuantity;
-        this.transmissionProb = (double) transmissionProbPercentage / 100;
-        this.infectiousTimeDays = infectiousTimeDays;
+        this.transmissionProb = transmissionProb;
+        this.infectiousTimeDays = infectiousPeriod;
         this.infectionRadius = infectionRadius;
-        //**********
-        this.publicPlaces =publicPlaces;
     }
 
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProbPercentage, double infectionRadius) {
-        this.population = population;
-        this.circleSize = this.countCircleSize(populationQuantity);
-        this.populationQuantity = populationQuantity;
-        this.transmissionProb = (double) transmissionProbPercentage / 100;
-        this.infectiousTimeDays = 7;
-        this.infectionRadius = infectionRadius;
-        //**********
-        this.publicPlaces =publicPlaces;
+    // Constructor without publicPlaces
+    public PopulationController(Population population, int populationQuantity, int transmissionProb, Integer infectiousPeriod, double infectionRadius) {
+        this(population, null, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+    }
+
+    // Constructor without infectiousPeriod
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, double infectionRadius) {
+        this(population, publicPlaces, populationQuantity, transmissionProb, 7, infectionRadius);
+    }
+
+    // Constructor with only essential parameters
+    public PopulationController(Population population, int populationQuantity, int transmissionProb, double infectionRadius) {
+        this(population, null, populationQuantity, transmissionProb, 7, infectionRadius);
+    }
+
+    public PublicPlaces getPublicPlaces() {
+        return this.publicPlace;
     }
 
     @Override
@@ -83,10 +79,9 @@ public class PopulationController implements PopulationControllerInterface{
     }
 
     public boolean moveToPublicPlace(Person person) {
-        if (this.random.nextDouble() < 0.001 && !person.getVisitHubStatus() && this.publicPlaces.getPlacesCapacity() < this.publicPlaces.getInitialCapacity()) {
+        if (this.random.nextDouble() < 0.001 && this.publicPlace.getAvailability() < this.publicPlace.getInitialCapacity()) {
             person.moveToHub();
-            this.publicPlaces.incrementPlaceCapacity();
-            //moveToPositionAndBack(person, 590.0, 210.0, 0.3);
+            this.publicPlace.incrementPlaceCapacity();
             return true;
         }
         return false;
@@ -94,19 +89,12 @@ public class PopulationController implements PopulationControllerInterface{
 
     @Override
     public void movePeople() {
-        int counterHubsVisits = 0;
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
 
             if (currentPerson.getMovingStatus()) {
                 continue;
             }
-//
-//            if (moveToPublicPlace(currentPerson)) {
-//                counterHubsVisits++;
-//                System.out.println("CounterVisits: " + counterHubsVisits);
-//                continue;
-//            };
 
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
             double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
@@ -131,51 +119,6 @@ public class PopulationController implements PopulationControllerInterface{
         }
 
     }
-    private void moveToPositionAndBack(Person person, double targetX, double targetY, double durationSeconds) {
-        double startX = person.getX();
-        double startY = person.getY();
-        double halfDuration = durationSeconds / 2;
-        double interval = 0.016; // 60 FPS
-        int stepsToTarget = (int) (halfDuration / interval);
-        int stepsBack = (int) (halfDuration / interval);
-
-        Timeline timeline = new Timeline();
-
-        // Move to the target position
-        for (int i = 0; i < stepsToTarget; i++) {
-            double progress = (double) i / stepsToTarget;
-            KeyFrame keyFrame = new KeyFrame(Duration.seconds(interval * i), event -> {
-                person.move(startX + (targetX - startX) * progress, startY + (targetY - startY) * progress);
-            });
-            timeline.getKeyFrames().add(keyFrame);
-        }
-
-        // Add a pause transition for 1 second at the target position
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.75));
-        pause.setOnFinished(event -> {
-            Timeline timelineBack = new Timeline();
-
-            // Move back to the start position
-            for (int i = 0; i < stepsBack; i++) {
-                double progress = (double) i / stepsBack;
-                KeyFrame keyFrameBack = new KeyFrame(Duration.seconds(interval * i), e -> {
-                    person.move(targetX + (startX - targetX) * progress, targetY + (startY - targetY) * progress);
-                });
-                timelineBack.getKeyFrames().add(keyFrameBack);
-            }
-
-            timelineBack.setOnFinished(e -> {
-                person.stopMoving(); // Call stopMoving() when the timeline is finished
-            });
-
-            timelineBack.play();
-        });
-
-        timeline.setOnFinished(event -> pause.play());
-        timeline.play();
-    }
-
-
 
     private void addNewInfectious(int personI, double infectedX, double infectedY) {
         for (int i = 0; i < this.population.getQuantity(); i++) {

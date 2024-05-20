@@ -41,7 +41,6 @@ public class Person {
     }
 
     public void moveToHub() {
-        this.visitHub = true;
         this.isMovingToPlace = true;
     }
 
@@ -53,9 +52,6 @@ public class Person {
         return this.isMovingToPlace;
     }
 
-    public boolean getVisitHubStatus() {
-        return this.visitHub;
-    }
     private void startRecoveryProcess() {
         Thread recoveryThread = new Thread(() -> {
             try {

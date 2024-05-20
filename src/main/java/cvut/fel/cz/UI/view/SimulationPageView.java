@@ -3,6 +3,7 @@ package cvut.fel.cz.UI.view;
 import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
+import cvut.fel.cz.logic.model.hubs.PublicPlaces;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
@@ -29,18 +30,19 @@ public class SimulationPageView {
     private final StatisticsController statisticsController;
     private final Population population;
     private final Graph graph;
+    private final PublicPlaces publicPlace;
     private long lastUpdate = 0;
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
     private Timeline moveToPublicPlaceTimeline;
-    private Text sText, iText, rText, dayText;
+    private Text sText, iText, rText, dayText, hubText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         this.populationController = populationController;
         this.statisticsController = statisticsController;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
-
+        this.publicPlace = this.populationController.getPublicPlaces();
     }
 
     public Scene start() {
@@ -76,10 +78,15 @@ public class SimulationPageView {
         return layout;
     }
 
+
+
     private void createSimulationArea() {
         Rectangle populationBoard = this.setPopulationBoard();
-        Rectangle publicPlaceBoard = this.createPublicPlace();
-        this.layout.getChildren().addAll(populationBoard, publicPlaceBoard);
+        this.layout.getChildren().add(populationBoard);
+        if (this.publicPlace != null) {
+            Rectangle publicPlaceBoard = this.createPublicPlace();
+            this.layout.getChildren().add(publicPlaceBoard);
+        }
         AnchorPane.setTopAnchor(populationBoard, 30.0);
         AnchorPane.setRightAnchor(populationBoard, 20.0);
 
@@ -117,14 +124,17 @@ public class SimulationPageView {
 
         int circleSize = this.populationController.countCircleSize(this.population.getQuantity());
 
-        int placeX = 400 + 190 - circleSize*2;
-        int placeY = 30 + 190 - circleSize*2;
+        int placeX = 400 + 190 - circleSize;
+        int placeY = 30 + 190 - circleSize;
 
         publicPlaceBoard.setX(placeX);
         publicPlaceBoard.setY(placeY);
 
-        publicPlaceBoard.setHeight(circleSize*4);
-        publicPlaceBoard.setWidth(circleSize*4);
+        int height = Math.max(circleSize * 2, 5);
+        int width = Math.max(circleSize * 2, 5);
+
+        publicPlaceBoard.setHeight(height);
+        publicPlaceBoard.setWidth(width);
 
         publicPlaceBoard.setStroke(Color.web("#faa805"));
         publicPlaceBoard.setStrokeWidth(2);
@@ -153,6 +163,11 @@ public class SimulationPageView {
             timeline.getKeyFrames().add(keyFrame);
         }
 
+        KeyFrame finalKeyFrameToTarget = new KeyFrame(Duration.seconds(halfDuration), event -> {
+            person.move(targetX, targetY);
+        });
+        timeline.getKeyFrames().add(finalKeyFrameToTarget);
+
         // Add a pause transition for 1 second at the target position
         PauseTransition pause = new PauseTransition(Duration.seconds(0.75));
         pause.setOnFinished(event -> {
@@ -169,6 +184,7 @@ public class SimulationPageView {
 
             timelineBack.setOnFinished(e -> {
                 person.stopMoving(); // Call stopMoving() when the timeline is finished
+                this.publicPlace.decreasePlaceCapacity();
             });
 
             timelineBack.play();
@@ -227,6 +243,15 @@ public class SimulationPageView {
         rText.setX(30);
         rText.setY(445);
 
+        if (this.publicPlace != null) {
+            Text hubText = new Text("Hub: ");
+            hubText.setFont(font);
+            hubText.setX(30);
+            hubText.setY(475);
+            hubText.setFill(Color.web("#faa805"));
+            this.layout.getChildren().add(hubText);
+        }
+
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
         this.layout.getChildren().add(rText);
@@ -235,7 +260,7 @@ public class SimulationPageView {
 
     private void updateTextStatistics() {
         if (sText != null) {
-            layout.getChildren().removeAll(sText, iText, rText, dayText);
+            layout.getChildren().removeAll(sText, iText, rText, dayText, hubText);
         }
         int sCount = this.graph.getLastDay().getDaySusceptible();
         int iCount = this.graph.getLastDay().getDayInfected();
@@ -269,6 +294,16 @@ public class SimulationPageView {
         rText.setX(165);
         rText.setY(445);
 
+        if (this.publicPlace != null) {
+            int hubOccupancy = this.publicPlace.getAvailability();
+            this.hubText = new Text(String.valueOf(hubOccupancy));
+            hubText.setFont(font);
+            hubText.setFill(Color.web("#faa805"));
+            hubText.setX(90);
+            hubText.setY(475);
+            this.layout.getChildren().add(hubText);
+        }
+
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
         this.layout.getChildren().add(rText);
@@ -298,13 +333,8 @@ public class SimulationPageView {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
 
-//                if (currentPerson.getMovingStatus()) {
-//                    continue;
-//                }
-//
-                if (populationController.moveToPublicPlace(currentPerson)) {
-                    moveToPositionAndBack(currentPerson, 590, 210, 0.3);
-                    //continue;
+                if (populationController.getPublicPlaces() != null && populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
                 }
 
                 circle.setCenterX(currentPerson.getX());

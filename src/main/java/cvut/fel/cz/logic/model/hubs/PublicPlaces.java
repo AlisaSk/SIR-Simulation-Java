@@ -15,7 +15,7 @@ public class PublicPlaces {
         return this.placeQuantity;
     }
 
-    public int getPlacesCapacity() {
+    public int getAvailability() {
         return this.placeCapacity;
     }
 

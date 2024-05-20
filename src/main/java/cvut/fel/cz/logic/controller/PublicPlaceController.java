@@ -7,22 +7,12 @@ import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class PublicPlaceController {
     private Random random;
     private PublicPlaces publicPlace;
     public PublicPlaceController(PublicPlaces publicPlace) {
         this.publicPlace = publicPlace;
-    }
-
-    private void moveToPublicPlace(Person person) {
-        if (this.random.nextDouble() < 0.02 && !person.getVisitHubStatus() && this.publicPlace.getPlacesCapacity() < 12) {
-            person.moveToHub();
-            moveToPositionAndBack(person, 590.0, 210.0, 0.2);
-        }
     }
 
     private void moveToPositionAndBack(Person person, double targetX, double targetY, double durationSeconds) {
