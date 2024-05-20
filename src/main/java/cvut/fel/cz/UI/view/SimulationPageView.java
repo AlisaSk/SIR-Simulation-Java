@@ -7,6 +7,9 @@ import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
@@ -17,6 +20,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import static java.lang.Thread.sleep;
 
@@ -28,6 +32,7 @@ public class SimulationPageView {
     private long lastUpdate = 0;
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
+    private Timeline moveToPublicPlaceTimeline;
     private Text sText, iText, rText, dayText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
@@ -35,6 +40,7 @@ public class SimulationPageView {
         this.statisticsController = statisticsController;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
+
     }
 
     public Scene start() {
@@ -72,7 +78,8 @@ public class SimulationPageView {
 
     private void createSimulationArea() {
         Rectangle populationBoard = this.setPopulationBoard();
-        this.layout.getChildren().add(populationBoard);
+        Rectangle publicPlaceBoard = this.createPublicPlace();
+        this.layout.getChildren().addAll(populationBoard, publicPlaceBoard);
         AnchorPane.setTopAnchor(populationBoard, 30.0);
         AnchorPane.setRightAnchor(populationBoard, 20.0);
 
@@ -103,6 +110,72 @@ public class SimulationPageView {
         populationBoard.setFill(Color.TRANSPARENT);
 
         return populationBoard;
+    }
+
+    private Rectangle createPublicPlace() {
+        Rectangle publicPlaceBoard = new Rectangle();
+
+        int circleSize = this.populationController.countCircleSize(this.population.getQuantity());
+
+        int placeX = 400 + 190 - circleSize*2;
+        int placeY = 30 + 190 - circleSize*2;
+
+        publicPlaceBoard.setX(placeX);
+        publicPlaceBoard.setY(placeY);
+
+        publicPlaceBoard.setHeight(circleSize*4);
+        publicPlaceBoard.setWidth(circleSize*4);
+
+        publicPlaceBoard.setStroke(Color.web("#faa805"));
+        publicPlaceBoard.setStrokeWidth(2);
+
+        publicPlaceBoard.setFill(Color.TRANSPARENT);
+
+        return publicPlaceBoard;
+    }
+
+    private void moveToPositionAndBack(Person person, double targetX, double targetY, double durationSeconds) {
+        double startX = person.getX();
+        double startY = person.getY();
+        double halfDuration = durationSeconds / 2;
+        double interval = 0.016; // 60 FPS
+        int stepsToTarget = (int) (halfDuration / interval);
+        int stepsBack = (int) (halfDuration / interval);
+
+        Timeline timeline = new Timeline();
+
+        // Move to the target position
+        for (int i = 0; i < stepsToTarget; i++) {
+            double progress = (double) i / stepsToTarget;
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(interval * i), event -> {
+                person.move(startX + (targetX - startX) * progress, startY + (targetY - startY) * progress);
+            });
+            timeline.getKeyFrames().add(keyFrame);
+        }
+
+        // Add a pause transition for 1 second at the target position
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.75));
+        pause.setOnFinished(event -> {
+            Timeline timelineBack = new Timeline();
+
+            // Move back to the start position
+            for (int i = 0; i < stepsBack; i++) {
+                double progress = (double) i / stepsBack;
+                KeyFrame keyFrameBack = new KeyFrame(Duration.seconds(interval * i), e -> {
+                    person.move(targetX + (startX - targetX) * progress, targetY + (startY - targetY) * progress);
+                });
+                timelineBack.getKeyFrames().add(keyFrameBack);
+            }
+
+            timelineBack.setOnFinished(e -> {
+                person.stopMoving(); // Call stopMoving() when the timeline is finished
+            });
+
+            timelineBack.play();
+        });
+
+        timeline.setOnFinished(event -> pause.play());
+        timeline.play();
     }
 
     private void drawLines() {
@@ -220,11 +293,19 @@ public class SimulationPageView {
     private void updateCircles() {
         populationController.movePeople();
         int index = 0;
-
         for (Node node : this.layout.getChildren()) {
             if (node instanceof Circle) {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
+
+//                if (currentPerson.getMovingStatus()) {
+//                    continue;
+//                }
+//
+                if (populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 210, 0.3);
+                    //continue;
+                }
 
                 circle.setCenterX(currentPerson.getX());
                 circle.setCenterY(currentPerson.getY());

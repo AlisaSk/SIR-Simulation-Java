@@ -7,6 +7,8 @@ public class Person {
     private double delX;
     private double delY;
     private final int infectiousTimeDays;
+    private boolean visitHub;
+    private boolean isMovingToPlace;
 
     public Person(double x, double y, double delX, double delY, int infectiousTimeDays) {
         this.x = x;
@@ -15,10 +17,10 @@ public class Person {
         this.delY = delY;
         this.status = PersonStatus.Susceptible;
         this.infectiousTimeDays = infectiousTimeDays;
+        this.visitHub = false;
+        this.isMovingToPlace = false;
     }
 
-
-//    method moves
     public void move(double newX, double newY) {
         this.x = newX;
         this.y = newY;
@@ -38,6 +40,22 @@ public class Person {
         startRecoveryProcess();
     }
 
+    public void moveToHub() {
+        this.visitHub = true;
+        this.isMovingToPlace = true;
+    }
+
+    public void stopMoving() {
+        this.isMovingToPlace = false;
+    }
+
+    public boolean getMovingStatus() {
+        return this.isMovingToPlace;
+    }
+
+    public boolean getVisitHubStatus() {
+        return this.visitHub;
+    }
     private void startRecoveryProcess() {
         Thread recoveryThread = new Thread(() -> {
             try {

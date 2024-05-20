@@ -1,8 +1,10 @@
 package cvut.fel.cz.UI.view;
 
 import cvut.fel.cz.logic.controller.PopulationController;
+import cvut.fel.cz.logic.controller.PublicPlaceController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
+import cvut.fel.cz.logic.model.hubs.PublicPlaces;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
@@ -83,11 +85,13 @@ public class ParametersPageView {
     private static Scene setSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius) {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
+        PublicPlaces publicPlaces = new PublicPlaces(1, 30); // TODO should be entered by user
+        PublicPlaceController publicPlaceController = new PublicPlaceController(publicPlaces);
         PopulationController populationController;
         if (infectiousPeriod > 0){
-            populationController = new PopulationController(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius); // Population controller
+            populationController = new PopulationController(population, publicPlaces, transmissionProb, infectiousPeriod, infectionRadius); // Population controller
         } else {
-            populationController = new PopulationController(population, populationQuantity, transmissionProb, infectionRadius); // Population controller
+            populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius); // Population controller
         }
         StatisticsController statisticsController = new StatisticsController(graph, simulationName); // Statistics controller
         SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController); // Simulation Page view
