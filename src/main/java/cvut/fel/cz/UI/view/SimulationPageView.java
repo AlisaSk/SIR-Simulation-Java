@@ -17,9 +17,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -41,7 +40,7 @@ public class SimulationPageView {
     private long lastUpdate = 0;
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
-    private Text sText, iText, rText, dayText, hubText;
+    private Text sText, iText, rText, dayText, hubText, qText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         this.populationController = populationController;
@@ -115,7 +114,7 @@ public class SimulationPageView {
 
         this.addTextStatistics();
         this.updateChart();
-        this.addSliders();
+        this.addActionInterface();
     }
 
     private Rectangle setPopulationBoard() {
@@ -268,39 +267,56 @@ public class SimulationPageView {
 
     }
 
-    private void addSliders() {
-//        Slider infectionRadiusSlider = new Slider(1.1, 2.5, 1);
-//        infectionRadiusSlider.setShowTickLabels(true);
-//        infectionRadiusSlider.setShowTickMarks(true);
-//        infectionRadiusSlider.setValue(populationController.getInfectionRadius());
-//        infectionRadiusSlider.setMajorTickUnit(0.7);
-//        infectionRadiusSlider.setBlockIncrement(0.2);
-//        infectionRadiusSlider.setLayoutX(425);
-//        infectionRadiusSlider.setLayoutY(430);
-//        infectionRadiusSlider.getStyleClass().add("slider");
-//        infectionRadiusSlider.valueProperty().addListener(new ChangeListener<Number>() {
-//            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-//                double newValueDouble = newValue.doubleValue();
-//                populationController.setInfectionRadius(newValueDouble);
-//            }
-//        });
+    private void addActionInterface() {
+        // TODO set styles to buttons
+        if (this.publicPlace != null) {
+            Button incrementHubButton = new Button("+");
+            incrementHubButton.setFont(Font.font("Courier New", 13));
+            incrementHubButton.setMinSize(11, 11);
+            incrementHubButton.setLayoutX(190);
+            incrementHubButton.setLayoutY(423);
+
+            incrementHubButton.setOnAction(actionEvent -> {
+                int updatedValue = Math.min(this.publicPlace.getCapacity() + 1, 100);
+                this.publicPlace.updateCapacity(updatedValue);
+            });
+            this.layout.getChildren().add(incrementHubButton);
+        }
+        if (this.quarantineZone != null) {
+            Button incrementQuarantineButton = new Button("+");
+            incrementQuarantineButton.setFont(Font.font("Courier New", 13));
+            incrementQuarantineButton.setMinSize(11, 11);
+            if (this.publicPlace == null) {
+                incrementQuarantineButton.setLayoutX(220);
+                incrementQuarantineButton.setLayoutY(423);
+            } else {
+                incrementQuarantineButton.setLayoutX(220);
+                incrementQuarantineButton.setLayoutY(453);
+            }
+
+            incrementQuarantineButton.setOnAction(actionEvent -> {
+                int updatedValue = Math.min(this.quarantineZone.getCapacity() + 1, 300);
+                this.quarantineZone.updateCapacity(updatedValue);
+            });
+            this.layout.getChildren().add(incrementQuarantineButton);
+        }
+
+
         Text infectiousPeriodText = new Text("Infectious period");
-
-        Font font = Font.font("Courier New", 12);
+        Font font = Font.font("Courier New", 17);
         Color color = Color.web("#fa8ecf");
-
         infectiousPeriodText.setFont(font);
         infectiousPeriodText.setFill(color);
-        infectiousPeriodText.setX(35);
-        infectiousPeriodText.setY(463);
+        infectiousPeriodText.setX(405);
+        infectiousPeriodText.setY(440);
         Slider infectionPeriodSlider = new Slider(1, 30, 1);
         infectionPeriodSlider.setShowTickLabels(true);
         infectionPeriodSlider.setShowTickMarks(true);
         infectionPeriodSlider.setValue(populationController.getInfectionPeriod());
         infectionPeriodSlider.setMajorTickUnit(10);
         infectionPeriodSlider.setBlockIncrement(1);
-        infectionPeriodSlider.setLayoutX(30);
-        infectionPeriodSlider.setLayoutY(465);
+        infectionPeriodSlider.setLayoutX(420);
+        infectionPeriodSlider.setLayoutY(445);
         infectionPeriodSlider.getStyleClass().add("slider");
         infectionPeriodSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -349,6 +365,21 @@ public class SimulationPageView {
             this.layout.getChildren().add(hubText);
         }
 
+        if (this.quarantineZone != null) {
+            Text qText = new Text("Q Zone: ");
+            qText.setFont(font);
+            if (publicPlace == null) {
+                qText.setX(30);
+                qText.setY(445);
+            } else {
+                qText.setX(30);
+                qText.setY(475);
+            }
+
+            qText.setFill(Color.web("#82ffa5"));
+            this.layout.getChildren().add(qText);
+        }
+
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
         this.layout.getChildren().add(rText);
@@ -357,7 +388,7 @@ public class SimulationPageView {
 
     private void updateTextStatistics() {
         if (sText != null) {
-            layout.getChildren().removeAll(sText, iText, rText, dayText, hubText);
+            layout.getChildren().removeAll(sText, iText, rText, dayText, hubText, qText);
         }
         int sCount = this.graph.getLastDay().getDaySusceptible();
         int iCount = this.graph.getLastDay().getDayInfected();
@@ -392,13 +423,31 @@ public class SimulationPageView {
         rText.setY(415);
 
         if (this.publicPlace != null) {
-            int hubOccupancy = this.publicPlace.getAvailability();
-            this.hubText = new Text(String.valueOf(hubOccupancy));
+            int hubOccupancy = this.publicPlace.getOccupancy();
+            int hubCapacity = this.publicPlace.getCapacity();
+            this.hubText = new Text(hubOccupancy + "/" + hubCapacity);
             hubText.setFont(font);
             hubText.setFill(Color.web("#faa805"));
             hubText.setX(90);
             hubText.setY(445);
             this.layout.getChildren().add(hubText);
+        }
+
+        if (this.quarantineZone != null) {
+            int qOccupancy = this.quarantineZone.getOccupancy();
+            int qCapacity = this.quarantineZone.getCapacity();
+            this.qText = new Text(qOccupancy + "/" + qCapacity);
+            qText.setFont(font);
+            qText.setFill(Color.web("#82ffa5"));
+            if (publicPlace == null) {
+                qText.setX(120);
+                qText.setY(445);
+            } else {
+                qText.setX(120);
+                qText.setY(475);
+            }
+
+            this.layout.getChildren().add(qText);
         }
 
         this.layout.getChildren().add(sText);
@@ -430,13 +479,13 @@ public class SimulationPageView {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
 
-                if (this.publicPlace != null && populationController.moveToPublicPlace(currentPerson)) {
-                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
+                // if the person is infected already for 3 days, he will be sent to quarantine zone
+                if (this.quarantineZone != null && !currentPerson.getMovingStatus() && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
+                    moveToQuarantine(currentPerson, 305, 365, 0.25);
                 }
 
-                // if the person is infected already for 3 days, he will be sent to quarantine zone
-                if (this.quarantineZone != null && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
-                    moveToQuarantine(currentPerson, 305, 365, 0.25);
+                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
                 }
 
                 circle.setCenterX(currentPerson.getX());

@@ -239,7 +239,7 @@ public class ParametersPageView {
                 "REQUIRED: Use only latin, <= 20 symbols", "REQUIRED: Required range is <2, 1500>",
                 "REQUIRED: Percentage must be in range <1, 100>", "OPTIONAL: Infectious period must be in range <1, 30>. DEFAULT: 7 days",
                 "OPTIONAL: Choose the radius :). DEFAULT: medium",
-                "OPTIONAL: Quarantine Zone capacity must be in range <1, 200>. DEFAULT: -", "OPTIONAL: Central Hub capacity must be in range <1, 100>. DEFAULT: -"
+                "OPTIONAL: Quarantine Zone capacity must be in range <1, 300>. DEFAULT: -", "OPTIONAL: Central Hub capacity must be in range <1, 100>. DEFAULT: -"
         };
 
         Tooltip tooltip = new Tooltip(descriptions[index]);

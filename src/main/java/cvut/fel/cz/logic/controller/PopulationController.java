@@ -108,18 +108,18 @@ public class PopulationController implements PopulationControllerInterface{
     }
 
     public boolean moveToPublicPlace(Person person) {
-        if (this.random.nextDouble() < 0.001 && this.publicPlace.getAvailability() < this.publicPlace.getInitialCapacity()) {
+        if (this.random.nextDouble() < 0.001 && this.publicPlace.getOccupancy() < this.publicPlace.getCapacity()) {
             person.moveToHub();
-            this.publicPlace.incrementPlaceCapacity();
+            this.publicPlace.incrementOccupancy();
             return true;
         }
         return false;
     }
 
     public boolean moveToQuarantineZone(Person currentPerson, int currentDay) {
-        if (this.quarantineZone.getAvailability() < this.quarantineZone.getInitialCapacity() && currentPerson.getStatus() == PersonStatus.Infectious && !currentPerson.getQuarantineStatus() && currentPerson.getReceivingInfectionDay() <= currentDay - (this.infectiousTimeDays / 2)) {
+        if (this.quarantineZone.getOccupancy() < this.quarantineZone.getCapacity() && currentPerson.getStatus() == PersonStatus.Infectious && !currentPerson.getQuarantineStatus() && currentPerson.getReceivingInfectionDay() <= currentDay - 4) {
             currentPerson.moveToQuarantine();
-            this.quarantineZone.incrementPlaceCapacity();
+            this.quarantineZone.incrementOccupancy();
             return true;
         }
         return false;

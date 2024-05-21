@@ -10,18 +10,18 @@ public class QuarantineZones {
         this.initialCapacity = placeCapacity;
     }
 
-    public int getAvailability() {
+    public int getOccupancy() {
         return this.placeCapacity;
     }
 
-    public int getInitialCapacity() {
+    public int getCapacity() {
         return this.initialCapacity;
     }
-    public void changeInitialCapacity(int newCapacity) {
+    public void updateCapacity(int newCapacity) {
         this.initialCapacity = newCapacity;
     }
 
-    public void incrementPlaceCapacity() {
+    public void incrementOccupancy() {
         this.placeCapacity++;
     }
 
