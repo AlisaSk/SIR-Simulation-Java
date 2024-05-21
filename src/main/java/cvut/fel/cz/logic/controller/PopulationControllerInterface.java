@@ -22,7 +22,7 @@ public interface PopulationControllerInterface {
     /*
      * move each person in the city
      * */
-    public void movePeople();
+    public void movePeople(int currentDay);
 
 
 //    /*

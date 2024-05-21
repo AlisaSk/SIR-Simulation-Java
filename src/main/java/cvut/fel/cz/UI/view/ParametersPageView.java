@@ -4,6 +4,7 @@ import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.hubs.PublicPlaces;
+import cvut.fel.cz.logic.model.hubs.QuarantineZones;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
@@ -68,40 +69,54 @@ public class ParametersPageView {
         int infectiousPeriod = this.getParameterValue("Time of the infectious period (days)", 1, 30, false);
         double infectionRadius = this.getRadius();
         int publicPlaceCapacity = this.getParameterValue("Capacity of a public place", 1, 100, false);
+        int quarantineZoneCapacity = this.getParameterValue("Capacity of a quarantine zone", 1, 300, false);
 
         //checking if fields are filled correctly
-        boolean errorCondition = Objects.equals(simulationName, "") || populationQuantity == -1 || transmissionProb == -1 || infectiousPeriod == -1 || publicPlaceCapacity == -1;
+        boolean errorCondition = Objects.equals(simulationName, "") || populationQuantity == -1 || transmissionProb == -1 || infectiousPeriod == -1 || publicPlaceCapacity == -1 || quarantineZoneCapacity == -1;
         if (errorCondition) {
             return;
         }
 
-        Scene simulationScene = setSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius, publicPlaceCapacity);
+        Scene simulationScene = setSimulationScene(populationQuantity, transmissionProb, simulationName, infectiousPeriod, infectionRadius, publicPlaceCapacity, quarantineZoneCapacity);
 
         Node source = (Node) event.getSource();
         Stage currentStage = (Stage) source.getScene().getWindow();
         currentStage.setScene(simulationScene); // closing previous page
     }
 
-    private static Scene setSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius, int publicPlaceCapacity) {
+    private static Scene setSimulationScene(int populationQuantity, int transmissionProb, String simulationName, int infectiousPeriod, double infectionRadius, int publicPlaceCapacity, int quarantineZoneCapacity) {
         Population population = new Population(); // model
         Graph graph = new Graph(population);
         PublicPlaces publicPlaces = null;
+        QuarantineZones quarantineZone = null;
 
         if (publicPlaceCapacity > 0) {
             publicPlaces = new PublicPlaces(1, publicPlaceCapacity);
         }
 
+        if (quarantineZoneCapacity > 0) {
+            quarantineZone = new QuarantineZones(1, quarantineZoneCapacity);
+        }
+
         PopulationController populationController;
 
         if (infectiousPeriod > 0) {
-            if (publicPlaces != null) {
+            if (publicPlaces != null && quarantineZone != null) {
+                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            } else if (publicPlaces != null) {
                 populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            } else if (quarantineZone != null) {
+                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             } else {
                 populationController = new PopulationController(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             }
         } else {
-            if (publicPlaces != null) {
+            if (publicPlaces != null && quarantineZone != null) {
+                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
+            } else if (publicPlaces != null) {
                 populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
+            } else if (quarantineZone != null) {
+                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
             } else {
                 populationController = new PopulationController(population, populationQuantity, transmissionProb, infectionRadius);
             }
@@ -183,8 +198,8 @@ public class ParametersPageView {
         String[] labels = {
                 "Simulation name*", "People quantity in the population*",
                 "Probability of the infection transmission (%)*", "Time of the infectious period (days)",
-                "Infection radius", "(doesn't work)Number of quarantine zones",
-                "(doesn't work)Capacity of quarantine zones", "Capacity of a public place"
+                "Infection radius",
+                "Capacity of a quarantine zone", "Capacity of a public place"
         };
 
         int currentY = 110;
@@ -223,8 +238,8 @@ public class ParametersPageView {
         String[] descriptions = {
                 "REQUIRED: Use only latin, <= 20 symbols", "REQUIRED: Required range is <2, 1500>",
                 "REQUIRED: Percentage must be in range <1, 100>", "OPTIONAL: Infectious period must be in range <1, 30>. DEFAULT: 7 days",
-                "OPTIONAL: Choose the radius :). DEFAULT: medium", "(doesn't work)Number of quarantine zones",
-                "(doesn't work)Capacity of quarantine zones", "OPTIONAL: Central Hub capacity must be in range <1, 100>. DEFAULT: -"
+                "OPTIONAL: Choose the radius :). DEFAULT: medium",
+                "OPTIONAL: Quarantine Zone capacity must be in range <1, 200>. DEFAULT: -", "OPTIONAL: Central Hub capacity must be in range <1, 100>. DEFAULT: -"
         };
 
         Tooltip tooltip = new Tooltip(descriptions[index]);
