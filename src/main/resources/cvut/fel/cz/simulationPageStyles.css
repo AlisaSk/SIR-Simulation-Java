@@ -21,6 +21,19 @@
 /*.closeButton:hover{*/
 /*    -fx-background-color: #e94e50;*/
 /*}*/
+.slider {
+    -fx-control-inner-background: #942b71;
+    -fx-font-size: 14px;
+}
+
+.slider .track {
+    -fx-background-color: #942b71;
+}
+
+.slider .thumb {
+    -fx-background-color: #f70ca9;
+    -fx-background-radius: 10;
+}
 
 
 .chart {

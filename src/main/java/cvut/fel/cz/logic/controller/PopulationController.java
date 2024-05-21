@@ -13,9 +13,9 @@ public class PopulationController implements PopulationControllerInterface{
     private final int populationQuantity;
     private final Population population;
     private final PublicPlaces publicPlace;
-    private final double transmissionProb;
-    private final int infectiousTimeDays;
-    private final double infectionRadius;
+    private double transmissionProb;
+    private int infectiousTimeDays;
+    private double infectionRadius;
 
     public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
         this.circleSize = this.countCircleSize(populationQuantity);
@@ -58,6 +58,19 @@ public class PopulationController implements PopulationControllerInterface{
         return this.population;
     }
 
+    public void setInfectionRadius(double infectionRadius) {
+        this.infectionRadius = infectionRadius;
+    }
+    public double getInfectionRadius() {
+        return this.infectionRadius;
+    }
+    public void setInfectiousTimeDays(int newPeriod) {
+        this.infectiousTimeDays = newPeriod;
+    }
+    public double getInfectionPeriod() {
+        return this.infectiousTimeDays;
+    }
+
     @Override
     public Person createPerson() {
         int xMin = 400 + this.circleSize;
@@ -91,6 +104,7 @@ public class PopulationController implements PopulationControllerInterface{
     public void movePeople() {
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
+            currentPerson.changeRecoveryTime(this.infectiousTimeDays); // update infection period if necessary
 
             if (currentPerson.getMovingStatus()) {
                 continue;

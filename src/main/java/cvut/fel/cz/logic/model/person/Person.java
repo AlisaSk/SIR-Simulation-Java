@@ -6,7 +6,7 @@ public class Person {
     private double y;
     private double delX;
     private double delY;
-    private final int infectiousTimeDays;
+    private int infectiousTimeDays;
     private boolean visitHub;
     private boolean isMovingToPlace;
 
@@ -50,6 +50,9 @@ public class Person {
 
     public boolean getMovingStatus() {
         return this.isMovingToPlace;
+    }
+    public void changeRecoveryTime(int newPeriod) {
+        this.infectiousTimeDays = newPeriod;
     }
 
     private void startRecoveryProcess() {

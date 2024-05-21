@@ -11,9 +11,13 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -34,7 +38,6 @@ public class SimulationPageView {
     private long lastUpdate = 0;
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
-    private Timeline moveToPublicPlaceTimeline;
     private Text sText, iText, rText, dayText, hubText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
@@ -48,6 +51,7 @@ public class SimulationPageView {
     public Scene start() {
         this.layout = this.createSimulationWindow();
         Scene scene = new Scene(layout, 800, 500);
+        scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
         return scene;
     }
 
@@ -103,6 +107,7 @@ public class SimulationPageView {
 
         this.addTextStatistics();
         this.updateChart();
+        this.addSliders();
     }
 
     private Rectangle setPopulationBoard() {
@@ -213,6 +218,40 @@ public class SimulationPageView {
             this.layout.getChildren().add(line);
         }
 
+    }
+
+    private void addSliders() {
+        Slider infectionRadiusSlider = new Slider(1.1, 2.5, 1);
+        infectionRadiusSlider.setShowTickLabels(true);
+        infectionRadiusSlider.setShowTickMarks(true);
+        infectionRadiusSlider.setValue(populationController.getInfectionRadius());
+        infectionRadiusSlider.setMajorTickUnit(0.7);
+        infectionRadiusSlider.setBlockIncrement(0.2);
+        infectionRadiusSlider.setLayoutX(425);
+        infectionRadiusSlider.setLayoutY(430);
+        infectionRadiusSlider.getStyleClass().add("slider");
+        infectionRadiusSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                double newValueDouble = newValue.doubleValue();
+                populationController.setInfectionRadius(newValueDouble);
+            }
+        });
+        Slider infectionPeriodSlider = new Slider(1, 30, 1);
+        infectionPeriodSlider.setShowTickLabels(true);
+        infectionPeriodSlider.setShowTickMarks(true);
+        infectionPeriodSlider.setValue(populationController.getInfectionPeriod());
+        infectionPeriodSlider.setMajorTickUnit(10);
+        infectionPeriodSlider.setBlockIncrement(1);
+        infectionPeriodSlider.setLayoutX(600);
+        infectionPeriodSlider.setLayoutY(430);
+        infectionPeriodSlider.getStyleClass().add("slider");
+        infectionPeriodSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                int newValueDouble = newValue.intValue();
+                populationController.setInfectiousTimeDays(newValueDouble);
+            }
+        });
+        layout.getChildren().addAll(infectionRadiusSlider, infectionPeriodSlider);
     }
 
     private void addTextStatistics() {
@@ -367,7 +406,8 @@ public class SimulationPageView {
 
         int populationQuantity = this.population.getQuantity();
         // Y-Axis for population
-        NumberAxis yAxis = new NumberAxis(1, populationQuantity, populationQuantity*0.1);
+        int tick = (int) Math.round(populationQuantity*0.1);
+        NumberAxis yAxis = new NumberAxis(1, populationQuantity, tick);
         yAxis.setLabel("Population");
 
         // Создаем AreaChart
