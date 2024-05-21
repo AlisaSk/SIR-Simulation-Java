@@ -1,36 +1,65 @@
 package cvut.fel.cz.logic.controller;
 
+import cvut.fel.cz.logic.model.hubs.PublicPlaces;
+import cvut.fel.cz.logic.model.hubs.QuarantineZones;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 
-import java.util.List;
 import java.util.Random;
 
 public class PopulationController implements PopulationControllerInterface{
+    private QuarantineZones quarantineZone;
     Random random = new Random();
     private final int circleSize;
     private final int populationQuantity;
     private final Population population;
-    private final double transmissionProb;
-    private final int infectiousTimeDays;
-    private final double infectionRadius;
-    public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, int infectiousTimeDays, double infectionRadius) {
+    private PublicPlaces publicPlace;
+    private double transmissionProb;
+    private int infectiousTimeDays;
+    private double infectionRadius;
+
+    public PopulationController(Population population, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
         this.circleSize = this.countCircleSize(populationQuantity);
         this.populationQuantity = populationQuantity;
-        this.transmissionProb = (double) transmissionProbPercentage / 100;
+        this.transmissionProb = transmissionProb / 100.0;
         this.infectiousTimeDays = infectiousTimeDays;
         this.infectionRadius = infectionRadius;
+        this.publicPlace = null;
+        this.quarantineZone = null;
     }
 
-    public PopulationController(Population population, int populationQuantity, int transmissionProbPercentage, double infectionRadius) {
-        this.population = population;
-        this.circleSize = this.countCircleSize(populationQuantity);
-        this.populationQuantity = populationQuantity;
-        this.transmissionProb = (double) transmissionProbPercentage / 100;
-        this.infectiousTimeDays = 7;
-        this.infectionRadius = infectionRadius;
+    public PopulationController(Population population, int populationQuantity, double transmissionProb, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
+    }
+
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
+        this.publicPlace = publicPlaces;
+    }
+
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
+        this.publicPlace = publicPlaces;
+    }
+
+    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
+        this(population, publicPlaces, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
+        this.quarantineZone = quarantineZone;
+    }
+
+    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, double infectionRadius) {
+        this(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
+        this.quarantineZone = quarantineZone;
+    }
+
+
+    public PublicPlaces getPublicPlaces() {
+        return this.publicPlace;
+    }
+    public QuarantineZones getQuarantineZone() {
+        return this.quarantineZone;
     }
 
     @Override
@@ -38,11 +67,24 @@ public class PopulationController implements PopulationControllerInterface{
         for (int i = 0; i < this.populationQuantity; i++) {
             Person person = this.createPerson();
             if (i == 0) {
-                person.changeStatusToInfectious();
+                person.changeStatusToInfectious(1);
             }
             this.population.addPerson(person);
         }
         return this.population;
+    }
+
+    public void setInfectionRadius(double infectionRadius) {
+        this.infectionRadius = infectionRadius;
+    }
+    public double getInfectionRadius() {
+        return this.infectionRadius;
+    }
+    public void setInfectiousTimeDays(int newPeriod) {
+        this.infectiousTimeDays = newPeriod;
+    }
+    public double getInfectionPeriod() {
+        return this.infectiousTimeDays;
     }
 
     @Override
@@ -65,10 +107,38 @@ public class PopulationController implements PopulationControllerInterface{
         return x;
     }
 
+    public boolean moveToPublicPlace(Person person) {
+        if (this.random.nextDouble() < 0.001 && this.publicPlace.getOccupancy() < this.publicPlace.getCapacity()) {
+            person.moveToHub();
+            this.publicPlace.incrementOccupancy();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean moveToQuarantineZone(Person currentPerson, int currentDay) {
+        if (this.quarantineZone.getOccupancy() < this.quarantineZone.getCapacity() && currentPerson.getStatus() == PersonStatus.Infectious && !currentPerson.getQuarantineStatus() && currentPerson.getReceivingInfectionDay() <= currentDay - 4) {
+            currentPerson.moveToQuarantine();
+            this.quarantineZone.incrementOccupancy();
+            return true;
+        }
+        return false;
+    }
+
     @Override
-    public void movePeople() {
+    public void movePeople(int currentday) {
         for (int i = 0; i < this.population.getQuantity(); i++) {
             Person currentPerson = this.population.getPerson(i);
+            currentPerson.changeRecoveryTime(this.infectiousTimeDays); // update infection period if necessary
+
+            if (currentPerson.getMovingStatus()) {
+                continue;
+            }
+
+            if (currentPerson.getQuarantineStatus()) {
+                this.moveWithinQuarintine(currentPerson);
+                continue;
+            }
 
             double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
             double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
@@ -88,14 +158,32 @@ public class PopulationController implements PopulationControllerInterface{
             currentPerson.move(newX, newY);
 
             if (currentPerson.getStatus() == PersonStatus.Infectious) {
-                this.addNewInfectious(i, newX, newY);
+                this.addNewInfectious(i, newX, newY, currentday);
             }
         }
 
     }
 
-    @Override
-    public void addNewInfectious(int personI, double infectedX, double infectedY) {
+    public void moveWithinQuarintine(Person currentPerson) {
+        double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
+        double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
+
+        boolean isValidX = newX > 260 + circleSize && newX < 260 + 90 - circleSize;
+        boolean isValidY = newY > 320 + circleSize && newY < 320 + 90 - circleSize;
+
+        if (!isValidX) {
+            currentPerson.updateDelX();
+            newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
+        }
+        if (!isValidY) {
+            currentPerson.updateDelY();
+            newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
+        }
+
+        currentPerson.move(newX, newY);
+    }
+
+    private void addNewInfectious(int personI, double infectedX, double infectedY, int currentDay) {
         for (int i = 0; i < this.population.getQuantity(); i++) {
             if (i == personI) {
                 continue;
@@ -112,7 +200,7 @@ public class PopulationController implements PopulationControllerInterface{
                 }
 
                 if (this.random.nextDouble() <= transmissionProb) {
-                    personS.changeStatusToInfectious();
+                    personS.changeStatusToInfectious(currentDay);
                 }
             }
         }

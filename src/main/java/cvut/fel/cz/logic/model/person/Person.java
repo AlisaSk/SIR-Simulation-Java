@@ -6,7 +6,10 @@ public class Person {
     private double y;
     private double delX;
     private double delY;
-    private final int infectiousTimeDays;
+    private int infectiousTimeDays;
+    private int receivingInfectionDay;
+    private boolean isInQuarantine;
+    private boolean isMovingToPlace;
 
     public Person(double x, double y, double delX, double delY, int infectiousTimeDays) {
         this.x = x;
@@ -15,10 +18,10 @@ public class Person {
         this.delY = delY;
         this.status = PersonStatus.Susceptible;
         this.infectiousTimeDays = infectiousTimeDays;
+        this.isInQuarantine = false;
+        this.isMovingToPlace = false;
     }
 
-
-//    method moves
     public void move(double newX, double newY) {
         this.x = newX;
         this.y = newY;
@@ -33,9 +36,37 @@ public class Person {
         this.status = PersonStatus.Susceptible;
     }
 
-    public void changeStatusToInfectious() {
+    public void changeStatusToInfectious(int day) {
         this.status = PersonStatus.Infectious;
+        this.receivingInfectionDay = day;
         startRecoveryProcess();
+    }
+
+    public int getReceivingInfectionDay() {
+        return this.receivingInfectionDay;
+    }
+
+    public void moveToQuarantine() {
+        this.isInQuarantine = true;
+    }
+
+    public boolean getQuarantineStatus() {
+        return this.isInQuarantine;
+    }
+
+    public void moveToHub() {
+        this.isMovingToPlace = true;
+    }
+
+    public void stopMoving() {
+        this.isMovingToPlace = false;
+    }
+
+    public boolean getMovingStatus() {
+        return this.isMovingToPlace;
+    }
+    public void changeRecoveryTime(int newPeriod) {
+        this.infectiousTimeDays = newPeriod;
     }
 
     private void startRecoveryProcess() {

@@ -22,14 +22,14 @@ public interface PopulationControllerInterface {
     /*
      * move each person in the city
      * */
-    public void movePeople();
+    public void movePeople(int currentDay);
 
 
-    /*
-     * change some people status in the population according to their contact with other I
-     * (will be used radius of the infection and contacting time)
-     * */
-    public void addNewInfectious(int personI, double infectedX, double infectedY);
+//    /*
+//     * change some people status in the population according to their contact with other I
+//     * (will be used radius of the infection and contacting time)
+//     * */
+//    private void addNewInfectious(int personI, double infectedX, double infectedY);
 
 
     public int countCircleSize(int N);

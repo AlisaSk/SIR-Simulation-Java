@@ -3,13 +3,22 @@ package cvut.fel.cz.UI.view;
 import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
+import cvut.fel.cz.logic.model.hubs.PublicPlaces;
+import cvut.fel.cz.logic.model.hubs.QuarantineZones;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -17,6 +26,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import static java.lang.Thread.sleep;
 
@@ -25,21 +35,26 @@ public class SimulationPageView {
     private final StatisticsController statisticsController;
     private final Population population;
     private final Graph graph;
+    private final PublicPlaces publicPlace;
+    private final QuarantineZones quarantineZone;
     private long lastUpdate = 0;
     AnchorPane layout;
     StackedAreaChart<Number, Number> diagram;
-    private Text sText, iText, rText, dayText;
+    private Text sText, iText, rText, dayText, hubText, qText;
 
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         this.populationController = populationController;
         this.statisticsController = statisticsController;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
+        this.publicPlace = this.populationController.getPublicPlaces();
+        this.quarantineZone = this.populationController.getQuarantineZone();
     }
 
     public Scene start() {
         this.layout = this.createSimulationWindow();
-        Scene scene = new Scene(layout, 800, 500);
+        Scene scene = new Scene(layout, 800, 505);
+        scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
         return scene;
     }
 
@@ -70,9 +85,19 @@ public class SimulationPageView {
         return layout;
     }
 
+
+
     private void createSimulationArea() {
         Rectangle populationBoard = this.setPopulationBoard();
         this.layout.getChildren().add(populationBoard);
+        if (this.publicPlace != null) {
+            Rectangle publicPlaceBoard = this.createPublicPlace();
+            this.layout.getChildren().add(publicPlaceBoard);
+        }
+        if (this.quarantineZone != null) {
+            Rectangle quarantineZoneBoard = this.createQuarantineZone();
+            this.layout.getChildren().add(quarantineZoneBoard);
+        }
         AnchorPane.setTopAnchor(populationBoard, 30.0);
         AnchorPane.setRightAnchor(populationBoard, 20.0);
 
@@ -89,6 +114,7 @@ public class SimulationPageView {
 
         this.addTextStatistics();
         this.updateChart();
+        this.addActionInterface();
     }
 
     private Rectangle setPopulationBoard() {
@@ -103,6 +129,121 @@ public class SimulationPageView {
         populationBoard.setFill(Color.TRANSPARENT);
 
         return populationBoard;
+    }
+
+    private Rectangle createPublicPlace() {
+        Rectangle publicPlaceBoard = new Rectangle();
+
+        int circleSize = this.populationController.countCircleSize(this.population.getQuantity());
+
+        int placeX = 400 + 190 - circleSize;
+        int placeY = 30 + 190 - circleSize;
+
+        publicPlaceBoard.setX(placeX);
+        publicPlaceBoard.setY(placeY);
+
+        int height = Math.max(circleSize * 2, 5);
+        int width = Math.max(circleSize * 2, 5);
+
+        publicPlaceBoard.setHeight(height);
+        publicPlaceBoard.setWidth(width);
+
+        publicPlaceBoard.setStroke(Color.web("#faa805"));
+        publicPlaceBoard.setStrokeWidth(2);
+
+        publicPlaceBoard.setFill(Color.TRANSPARENT);
+
+        return publicPlaceBoard;
+    }
+
+    private Rectangle createQuarantineZone() {
+        Rectangle quarantineZoneBoard = new Rectangle();
+
+        quarantineZoneBoard.setX(260);
+        quarantineZoneBoard.setY(320);
+
+        quarantineZoneBoard.setHeight(90);
+        quarantineZoneBoard.setWidth(90);
+
+        quarantineZoneBoard.setStroke(Color.web("#82ffa5"));
+        quarantineZoneBoard.setStrokeWidth(2);
+
+        quarantineZoneBoard.setFill(Color.TRANSPARENT);
+
+        return quarantineZoneBoard;
+    }
+
+    private void moveToPositionAndBack(Person person, double targetX, double targetY, double durationSeconds) {
+        double startX = person.getX();
+        double startY = person.getY();
+        double halfDuration = durationSeconds / 2;
+        double interval = 0.016; // 60 FPS
+        int stepsToTarget = (int) (halfDuration / interval);
+        int stepsBack = (int) (halfDuration / interval);
+
+        Timeline timeline = new Timeline();
+
+        // Move to the target position
+        for (int i = 0; i < stepsToTarget; i++) {
+            double progress = (double) i / stepsToTarget;
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(interval * i), event -> {
+                person.move(startX + (targetX - startX) * progress, startY + (targetY - startY) * progress);
+            });
+            timeline.getKeyFrames().add(keyFrame);
+        }
+
+        KeyFrame finalKeyFrameToTarget = new KeyFrame(Duration.seconds(halfDuration), event -> {
+            person.move(targetX, targetY);
+        });
+        timeline.getKeyFrames().add(finalKeyFrameToTarget);
+
+        // Add a pause transition for 1 second at the target position
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.75));
+        pause.setOnFinished(event -> {
+            Timeline timelineBack = new Timeline();
+
+            // Move back to the start position
+            for (int i = 0; i < stepsBack; i++) {
+                double progress = (double) i / stepsBack;
+                KeyFrame keyFrameBack = new KeyFrame(Duration.seconds(interval * i), e -> {
+                    person.move(targetX + (startX - targetX) * progress, targetY + (startY - targetY) * progress);
+                });
+                timelineBack.getKeyFrames().add(keyFrameBack);
+            }
+
+            timelineBack.setOnFinished(e -> {
+                person.stopMoving(); // Call stopMoving() when the timeline is finished
+                this.publicPlace.decreasePlaceCapacity();
+            });
+
+            timelineBack.play();
+        });
+
+        timeline.setOnFinished(event -> pause.play());
+        timeline.play();
+    }
+
+    private void moveToQuarantine(Person person, double targetX, double targetY, double durationSeconds) {
+        double startX = person.getX();
+        double startY = person.getY();
+        double interval = 0.016; // 60 FPS
+        int steps = (int) (durationSeconds / interval);
+
+        Timeline timeline = new Timeline();
+
+        // Move to the target position
+        for (int i = 0; i <= steps; i++) {
+            double progress = (double) i / steps;
+            double currentX = startX + (targetX - startX) * progress;
+            double currentY = startY + (targetY - startY) * progress;
+
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(interval * i), event -> {
+                person.move(currentX, currentY);
+            });
+            timeline.getKeyFrames().add(keyFrame);
+        }
+
+        timeline.play();
     }
 
     private void drawLines() {
@@ -126,6 +267,67 @@ public class SimulationPageView {
 
     }
 
+    private void addActionInterface() {
+        // TODO set styles to buttons
+        if (this.publicPlace != null) {
+            Button incrementHubButton = new Button("+");
+            incrementHubButton.setFont(Font.font("Courier New", 13));
+            incrementHubButton.setMinSize(11, 11);
+            incrementHubButton.setLayoutX(190);
+            incrementHubButton.setLayoutY(423);
+
+            incrementHubButton.setOnAction(actionEvent -> {
+                int updatedValue = Math.min(this.publicPlace.getCapacity() + 1, 100);
+                this.publicPlace.updateCapacity(updatedValue);
+            });
+            this.layout.getChildren().add(incrementHubButton);
+        }
+        if (this.quarantineZone != null) {
+            Button incrementQuarantineButton = new Button("+");
+            incrementQuarantineButton.setFont(Font.font("Courier New", 13));
+            incrementQuarantineButton.setMinSize(11, 11);
+            if (this.publicPlace == null) {
+                incrementQuarantineButton.setLayoutX(220);
+                incrementQuarantineButton.setLayoutY(423);
+            } else {
+                incrementQuarantineButton.setLayoutX(220);
+                incrementQuarantineButton.setLayoutY(453);
+            }
+
+            incrementQuarantineButton.setOnAction(actionEvent -> {
+                int updatedValue = Math.min(this.quarantineZone.getCapacity() + 1, 300);
+                this.quarantineZone.updateCapacity(updatedValue);
+            });
+            this.layout.getChildren().add(incrementQuarantineButton);
+        }
+
+
+        Text infectiousPeriodText = new Text("Infectious period");
+        Font font = Font.font("Courier New", 17);
+        Color color = Color.web("#fa8ecf");
+        infectiousPeriodText.setFont(font);
+        infectiousPeriodText.setFill(color);
+        infectiousPeriodText.setX(405);
+        infectiousPeriodText.setY(440);
+        Slider infectionPeriodSlider = new Slider(1, 30, 1);
+        infectionPeriodSlider.setShowTickLabels(true);
+        infectionPeriodSlider.setShowTickMarks(true);
+        infectionPeriodSlider.setValue(populationController.getInfectionPeriod());
+        infectionPeriodSlider.setMajorTickUnit(10);
+        infectionPeriodSlider.setBlockIncrement(1);
+        infectionPeriodSlider.setLayoutX(420);
+        infectionPeriodSlider.setLayoutY(445);
+        infectionPeriodSlider.getStyleClass().add("slider");
+        infectionPeriodSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                int newValueDouble = newValue.intValue();
+                populationController.setInfectiousTimeDays(newValueDouble);
+            }
+        });
+
+        layout.getChildren().addAll(infectionPeriodSlider, infectiousPeriodText);
+    }
+
     private void addTextStatistics() {
         Text sText = new Text("Susceptible: ");
         Text iText = new Text("Infectious: ");
@@ -146,13 +348,37 @@ public class SimulationPageView {
         rText.setFill(color);
 
         dayText.setX(30);
-        dayText.setY(355);
+        dayText.setY(325);
         sText.setX(30);
-        sText.setY(385);
+        sText.setY(355);
         iText.setX(30);
-        iText.setY(415);
+        iText.setY(385);
         rText.setX(30);
-        rText.setY(445);
+        rText.setY(415);
+
+        if (this.publicPlace != null) {
+            Text hubText = new Text("Hub: ");
+            hubText.setFont(font);
+            hubText.setX(30);
+            hubText.setY(445);
+            hubText.setFill(Color.web("#faa805"));
+            this.layout.getChildren().add(hubText);
+        }
+
+        if (this.quarantineZone != null) {
+            Text qText = new Text("Q Zone: ");
+            qText.setFont(font);
+            if (publicPlace == null) {
+                qText.setX(30);
+                qText.setY(445);
+            } else {
+                qText.setX(30);
+                qText.setY(475);
+            }
+
+            qText.setFill(Color.web("#82ffa5"));
+            this.layout.getChildren().add(qText);
+        }
 
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
@@ -162,7 +388,7 @@ public class SimulationPageView {
 
     private void updateTextStatistics() {
         if (sText != null) {
-            layout.getChildren().removeAll(sText, iText, rText, dayText);
+            layout.getChildren().removeAll(sText, iText, rText, dayText, hubText, qText);
         }
         int sCount = this.graph.getLastDay().getDaySusceptible();
         int iCount = this.graph.getLastDay().getDayInfected();
@@ -188,13 +414,41 @@ public class SimulationPageView {
         rText.setFill(color);
 
         dayText.setX(90);
-        dayText.setY(355);
+        dayText.setY(325);
         sText.setX(188);
-        sText.setY(385);
+        sText.setY(355);
         iText.setX(170);
-        iText.setY(415);
+        iText.setY(385);
         rText.setX(165);
-        rText.setY(445);
+        rText.setY(415);
+
+        if (this.publicPlace != null) {
+            int hubOccupancy = this.publicPlace.getOccupancy();
+            int hubCapacity = this.publicPlace.getCapacity();
+            this.hubText = new Text(hubOccupancy + "/" + hubCapacity);
+            hubText.setFont(font);
+            hubText.setFill(Color.web("#faa805"));
+            hubText.setX(90);
+            hubText.setY(445);
+            this.layout.getChildren().add(hubText);
+        }
+
+        if (this.quarantineZone != null) {
+            int qOccupancy = this.quarantineZone.getOccupancy();
+            int qCapacity = this.quarantineZone.getCapacity();
+            this.qText = new Text(qOccupancy + "/" + qCapacity);
+            qText.setFont(font);
+            qText.setFill(Color.web("#82ffa5"));
+            if (publicPlace == null) {
+                qText.setX(120);
+                qText.setY(445);
+            } else {
+                qText.setX(120);
+                qText.setY(475);
+            }
+
+            this.layout.getChildren().add(qText);
+        }
 
         this.layout.getChildren().add(sText);
         this.layout.getChildren().add(iText);
@@ -218,13 +472,21 @@ public class SimulationPageView {
     }
 
     private void updateCircles() {
-        populationController.movePeople();
+        populationController.movePeople(this.graph.getLastDayNum());
         int index = 0;
-
         for (Node node : this.layout.getChildren()) {
             if (node instanceof Circle) {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
+
+                // if the person is infected already for 3 days, he will be sent to quarantine zone
+                if (this.quarantineZone != null && !currentPerson.getMovingStatus() && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
+                    moveToQuarantine(currentPerson, 305, 365, 0.25);
+                }
+
+                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
+                }
 
                 circle.setCenterX(currentPerson.getX());
                 circle.setCenterY(currentPerson.getY());
@@ -256,20 +518,18 @@ public class SimulationPageView {
 
         int populationQuantity = this.population.getQuantity();
         // Y-Axis for population
-        NumberAxis yAxis = new NumberAxis(1, populationQuantity, populationQuantity*0.1);
+        int tick = (int) Math.round(populationQuantity*0.1);
+        NumberAxis yAxis = new NumberAxis(1, populationQuantity, tick);
         yAxis.setLabel("Population");
 
-        // Создаем AreaChart
         StackedAreaChart<Number, Number> areaChart = new StackedAreaChart<>(xAxis, yAxis);
         areaChart.setTitle(this.statisticsController.getSimulationName());
         areaChart.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
 
-        // Создаем серии данных для каждой категории
         XYChart.Series<Number, Number> susceptibleSeries = new XYChart.Series<>();
         XYChart.Series<Number, Number> infectedSeries = new XYChart.Series<>();
         XYChart.Series<Number, Number> recoveredSeries = new XYChart.Series<>();
 
-        // Добавляем серии в диаграмму
         areaChart.getData().addAll(susceptibleSeries, infectedSeries, recoveredSeries);
 
         return areaChart;
