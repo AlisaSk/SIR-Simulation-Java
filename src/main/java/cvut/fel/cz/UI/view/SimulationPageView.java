@@ -1,5 +1,6 @@
 package cvut.fel.cz.UI.view;
 
+import com.google.gson.reflect.TypeToken;
 import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
@@ -26,7 +27,19 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static java.lang.Thread.sleep;
 
@@ -53,7 +66,7 @@ public class SimulationPageView {
 
     public Scene start() {
         this.layout = this.createSimulationWindow();
-        Scene scene = new Scene(layout, 800, 505);
+        Scene scene = new Scene(layout, 800, 500);
         scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
         return scene;
     }
@@ -85,11 +98,10 @@ public class SimulationPageView {
         return layout;
     }
 
-
-
     private void createSimulationArea() {
+        Button endButton = createEndButton();
         Rectangle populationBoard = this.setPopulationBoard();
-        this.layout.getChildren().add(populationBoard);
+        this.layout.getChildren().addAll(populationBoard, endButton);
         if (this.publicPlace != null) {
             Rectangle publicPlaceBoard = this.createPublicPlace();
             this.layout.getChildren().add(publicPlaceBoard);
@@ -102,6 +114,63 @@ public class SimulationPageView {
         AnchorPane.setRightAnchor(populationBoard, 20.0);
 
         this.initPopulationCircles();
+    }
+
+    private Button createEndButton() {
+        Button endButton = new Button("End & Save");
+        endButton.setFont(Font.font("Courier New", 23));
+        endButton.setLayoutX(615);
+        endButton.setLayoutY(430);
+        endButton.setOnAction(actionEvent -> {
+            this.addDataToJSON();
+            LoadSavePageView loadSavePageView = new LoadSavePageView();
+            Scene loadScene = loadSavePageView.start();
+            Node source = (Node) actionEvent.getSource();
+            Stage currentStage = (Stage) source.getScene().getWindow();
+            currentStage.setScene(loadScene);
+        });
+
+        return endButton;
+    }
+
+    private void addDataToJSON() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Type listType = new TypeToken<ArrayList<Map<String, Object>>>(){}.getType();
+
+        List<Map<String, Object>> existingData;
+
+        // Read the existing JSON data from the file
+        try (FileReader reader = new FileReader("src/main/resources/data/datajson.json")) {
+            existingData = gson.fromJson(reader, listType);
+            if (existingData == null) {
+                existingData = new ArrayList<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            existingData = new ArrayList<>();
+        }
+        // Define the data to be written to the JSON file using a Map
+        Map<String, Object> newData = new HashMap<>();
+        newData.put("name", this.statisticsController.getSimulationName());
+        newData.put("population quantity", this.population.getQuantity());
+        newData.put("infection probability", this.populationController.getTransmissionProb());
+        newData.put("infectious period", this.populationController.getInfectionPeriod());
+        newData.put("infection radius", this.populationController.getInfectionRadius());
+        if (this.publicPlace != null) {
+            newData.put("hub capacity", this.publicPlace.getCapacity());
+        }
+        if (this.quarantineZone != null) {
+            newData.put("quarantine capacity", this.quarantineZone.getCapacity());
+        }
+
+        existingData.add(newData);
+
+        // Write the updated data back to the file
+        try (FileWriter fileWriter = new FileWriter("src/main/resources/data/datajson.json")) {
+            gson.toJson(existingData, fileWriter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createStatisticsArea() {
@@ -479,13 +548,13 @@ public class SimulationPageView {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
 
+                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
+                }
+
                 // if the person is infected already for 3 days, he will be sent to quarantine zone
                 if (this.quarantineZone != null && !currentPerson.getMovingStatus() && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
                     moveToQuarantine(currentPerson, 305, 365, 0.25);
-                }
-
-                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
-                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
                 }
 
                 circle.setCenterX(currentPerson.getX());

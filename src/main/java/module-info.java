@@ -1,6 +1,7 @@
 module cvut.fel.cz {
     requires javafx.controls;
     requires javafx.fxml;
+    requires com.google.gson;
 
     opens cvut.fel.cz to javafx.fxml;
     exports cvut.fel.cz;

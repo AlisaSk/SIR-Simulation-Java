@@ -74,8 +74,8 @@ public class PopulationController implements PopulationControllerInterface{
         return this.population;
     }
 
-    public void setInfectionRadius(double infectionRadius) {
-        this.infectionRadius = infectionRadius;
+    public double getTransmissionProb() {
+        return this.transmissionProb;
     }
     public double getInfectionRadius() {
         return this.infectionRadius;
@@ -136,7 +136,7 @@ public class PopulationController implements PopulationControllerInterface{
             }
 
             if (currentPerson.getQuarantineStatus()) {
-                this.moveWithinQuarintine(currentPerson);
+                this.moveWithinQuarantine(currentPerson);
                 continue;
             }
 
@@ -164,7 +164,7 @@ public class PopulationController implements PopulationControllerInterface{
 
     }
 
-    public void moveWithinQuarintine(Person currentPerson) {
+    public void moveWithinQuarantine(Person currentPerson) {
         double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
         double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 

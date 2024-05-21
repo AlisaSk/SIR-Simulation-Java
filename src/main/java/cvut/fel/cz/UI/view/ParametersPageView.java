@@ -2,6 +2,7 @@ package cvut.fel.cz.UI.view;
 
 import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
+import cvut.fel.cz.UI.view.LoadSavePageView;
 import cvut.fel.cz.logic.model.graph.Graph;
 import cvut.fel.cz.logic.model.hubs.PublicPlaces;
 import cvut.fel.cz.logic.model.hubs.QuarantineZones;
@@ -30,7 +31,8 @@ public class ParametersPageView {
 
     public Scene start() {
         Button startButton = this.createStartButton();
-        this.layout = new AnchorPane(startButton);
+        Button loadButton = this.createLoadButton();
+        this.layout = new AnchorPane(startButton, loadButton);
         Scene scene = new Scene(layout, 800, 500);
         this.addTitle();
         this.addParameters();
@@ -58,6 +60,23 @@ public class ParametersPageView {
             st.setToX(1.0);
             st.setToY(1.0);
             st.play();
+        });
+        return startButton;
+    }
+
+    private Button createLoadButton() {
+        Button startButton = new Button("LOAD");
+        startButton.getStyleClass().add("start-button");
+        startButton.setLayoutX(400);
+        startButton.setLayoutY(400);
+        startButton.setPrefHeight(65);
+        startButton.setPrefWidth(140);
+        startButton.setOnAction(actionEvent -> {
+            LoadSavePageView loadSavePageView = new LoadSavePageView();
+            Scene loadScene = loadSavePageView.start();
+            Node source = (Node) actionEvent.getSource();
+            Stage currentStage = (Stage) source.getScene().getWindow();
+            currentStage.setScene(loadScene);
         });
         return startButton;
     }
