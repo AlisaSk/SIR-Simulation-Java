@@ -117,29 +117,26 @@ public class ParametersPageView {
             quarantineZone = new QuarantineZones(1, quarantineZoneCapacity);
         }
 
+        if (infectiousPeriod == 0) {
+            infectiousPeriod = 7; // default value
+        }
+
         PopulationController populationController;
 
-        if (infectiousPeriod > 0) {
-            if (publicPlaces != null && quarantineZone != null) {
+        if (publicPlaces != null) {
+            if (quarantineZone != null) {
                 populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
-            } else if (publicPlaces != null) {
+            } else {
                 populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
-            } else if (quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            }
+        } else {
+            if (quarantineZone != null) {
+                populationController = new PopulationController(population, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             } else {
                 populationController = new PopulationController(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             }
-        } else {
-            if (publicPlaces != null && quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
-            } else if (publicPlaces != null) {
-                populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
-            } else if (quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
-            } else {
-                populationController = new PopulationController(population, populationQuantity, transmissionProb, infectionRadius);
-            }
         }
+
         StatisticsController statisticsController = new StatisticsController(graph, simulationName); // Statistics controller
         SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController); // Simulation Page view
         Scene simulationScene = simulationPageView.start();

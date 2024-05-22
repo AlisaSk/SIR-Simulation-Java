@@ -2,15 +2,19 @@ package cvut.fel.cz.UI.view;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import cvut.fel.cz.logic.controller.PopulationController;
+import cvut.fel.cz.logic.controller.StatisticsController;
+import cvut.fel.cz.logic.model.graph.Graph;
+import cvut.fel.cz.logic.model.hubs.PublicPlaces;
+import cvut.fel.cz.logic.model.hubs.QuarantineZones;
+import cvut.fel.cz.logic.model.population.Population;
 import javafx.animation.ScaleTransition;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -38,8 +42,9 @@ public class LoadSavePageView {
 
     private void createLoadWindow() {
         this.setStaticText();
+        this.addGif();
         this.loadSimulationNames();
-        this.createSavedSimulations();
+        this.createSavedSimulationsButtons();
         this.createGoBackButton();
     }
 
@@ -59,12 +64,12 @@ public class LoadSavePageView {
     }
 
     private void setStaticText() {
-        Text title = new Text("Load your previous simulation ;)");
+        Text title = new Text("Load your previous simulation :)");
         title.getStyleClass().add("title-text");
         title.setX(30);
         title.setY(55);
 
-        Text clickText1 = new Text("Click on button to load");
+        Text clickText1 = new Text("Click on the button to load");
         Text clickText2 = new Text("your saved simulation or...");
         clickText1.getStyleClass().add("click-text");
         clickText2.getStyleClass().add("click-text");
@@ -93,7 +98,7 @@ public class LoadSavePageView {
             currentStage.setScene(parametersScene);
         });
     }
-    private void createSavedSimulations() {
+    private void createSavedSimulationsButtons() {
         randomColors = new ArrayList<>();
         randomColors.add("#aa2fcc");
         randomColors.add("#2dbef7");
@@ -102,6 +107,7 @@ public class LoadSavePageView {
         randomColors.add("#5f67f5");
 
         int startY = 90;
+        int startX = 50;
         int lineCounter = 0;
         int length = this.simulationNames.size();
         String[] reversedArray = new String[length];
@@ -119,14 +125,18 @@ public class LoadSavePageView {
             simulationButton.getStyleClass().add("list-button");
             int colorIndex = random.nextInt(4);
             simulationButton.setStyle("-fx-background-color:" + randomColors.get(colorIndex));
-            simulationButton.setLayoutX(50);
+            simulationButton.setLayoutX(startX);
             simulationButton.setLayoutY(startY);
             startY+=50;
+            startX+=50;
             this.buttonAnimation(simulationButton);
             this.layout.getChildren().add(simulationButton);
 
             simulationButton.setOnAction(actionEvent -> {
-                this.loadSimulationByName(simulationName);
+                Scene simulationScene = this.loadSimulationByName(simulationName);
+                Node source = (Node) actionEvent.getSource();
+                Stage currentStage = (Stage) source.getScene().getWindow();
+                currentStage.setScene(simulationScene);
             });
         }
     }
@@ -135,7 +145,7 @@ public class LoadSavePageView {
         Gson gson = new Gson();
         Type listType = new TypeToken<ArrayList<Map<String, Object>>>() {}.getType();
         this.simulationNames = new ArrayList<>();
-        try (FileReader reader = new FileReader("src/main/resources/data/datajson.json")) {
+        try (FileReader reader = new FileReader("src/main/resources/data/simulations.json")) {
             List<Map<String, Object>> data = gson.fromJson(reader, listType);
             if (data != null) {
                 for (Map<String, Object> simulation : data) {
@@ -149,8 +159,9 @@ public class LoadSavePageView {
         }
     }
 
-    private void loadSimulationByName(String simulationName) {
-        String filePath = "src/main/resources/data/datajson.json";
+    private Scene loadSimulationByName(String simulationName) {
+        String filePath = "src/main/resources/data/simulations.json";
+        Scene simulationScene;
 
         try (FileReader reader = new FileReader(filePath)) {
             JsonElement jsonElement = JsonParser.parseReader(reader);
@@ -168,23 +179,63 @@ public class LoadSavePageView {
                 }
                 int populationQuantity = jsonObject.get("population quantity").getAsInt();
                 int infectiousPeriod = jsonObject.get("infectious period").getAsInt();
-                double infectionProbability = jsonObject.get("infection probability").getAsDouble();
+                int infectionProbability = jsonObject.get("infection probability").getAsInt();
                 double infectionRadius = jsonObject.get("infection radius").getAsDouble();
 
+                int hubCapacity = 0;
+                int quarantineCapacity = 0;
                 if (jsonObject.has("hub capacity")) {
-                    int hubCapacity = jsonObject.get("hub capacity").getAsInt();
+                    hubCapacity = jsonObject.get("hub capacity").getAsInt();
                 }
                 if (jsonObject.has("quarantine capacity")) {
-                    int quarantineCapacity = jsonObject.get("quarantine capacity").getAsInt();
+                    quarantineCapacity = jsonObject.get("quarantine capacity").getAsInt();
                 }
-
+                simulationScene = this.loadSimulationPage(name, populationQuantity, infectiousPeriod, infectionProbability, infectionRadius, hubCapacity, quarantineCapacity);
+                return simulationScene;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        throw new IllegalArgumentException("Simulation '" + simulationName + "' not found");
     }
 
-    private void loadSimulationPage() {
-
+    private Scene loadSimulationPage(String name, int populationQuantity, int infectiousPeriod, int transmissionProb, double infectionRadius, int hubCapacity, int quarantineCapacity) {
+        Population population = new Population(); // model
+        Graph graph = new Graph(population);
+        PublicPlaces publicPlaces = null;
+        QuarantineZones quarantineZone = null;
+        if (hubCapacity != 0) {
+            publicPlaces = new PublicPlaces(1, hubCapacity);
+        }
+        if (quarantineCapacity != 0) {
+            quarantineZone = new QuarantineZones(1, quarantineCapacity);
+        }
+        PopulationController populationController;
+        if (publicPlaces != null) {
+            if (quarantineZone != null) {
+                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            } else {
+                populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            }
+        } else {
+            if (quarantineZone != null) {
+                populationController = new PopulationController(population, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            } else {
+                populationController = new PopulationController(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            }
+        }
+        StatisticsController statisticsController = new StatisticsController(graph, name); // Statistics controller
+        SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController); // Simulation Page view
+        Scene simulationScene = simulationPageView.start();
+        return simulationScene;
     }
+
+    private void addGif() {
+        Image gifImage = new Image(getClass().getResource("/cvut/fel/cz/pers.gif").toExternalForm());
+        ImageView gifImageView = new ImageView(gifImage);
+        gifImageView.setLayoutX(470);
+        gifImageView.setLayoutY(120);
+        layout.getChildren().add(gifImageView);
+    }
+
 }

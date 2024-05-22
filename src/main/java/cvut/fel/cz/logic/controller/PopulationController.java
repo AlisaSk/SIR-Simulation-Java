@@ -19,7 +19,7 @@ public class PopulationController implements PopulationControllerInterface{
     private int infectiousTimeDays;
     private double infectionRadius;
 
-    public PopulationController(Population population, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
+    public PopulationController(Population population, int populationQuantity, int transmissionProb, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
         this.circleSize = this.countCircleSize(populationQuantity);
         this.populationQuantity = populationQuantity;
@@ -30,27 +30,19 @@ public class PopulationController implements PopulationControllerInterface{
         this.quarantineZone = null;
     }
 
-    public PopulationController(Population population, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
+    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.publicPlace = publicPlaces;
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
-        this.publicPlace = publicPlaces;
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
-        this(population, publicPlaces, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
         this.quarantineZone = quarantineZone;
     }
 
-    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+        this.publicPlace = publicPlaces;
+    }
+
+    public PopulationController(Population population, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.quarantineZone = quarantineZone;
     }
 

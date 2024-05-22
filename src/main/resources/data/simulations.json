@@ -1,0 +1,11 @@
+[
+  {
+    "hub capacity": 15.0,
+    "population quantity": 300.0,
+    "infectious period": 10.0,
+    "infection probability": 12.0,
+    "name": "WelcomeSIR",
+    "quarantine capacity": 60.0,
+    "infection radius": 1.6
+  }
+]

@@ -41,8 +41,6 @@ import com.google.gson.GsonBuilder;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static java.lang.Thread.sleep;
-
 public class SimulationPageView {
     private final PopulationController populationController;
     private final StatisticsController statisticsController;
@@ -118,7 +116,7 @@ public class SimulationPageView {
 
     private Button createEndButton() {
         Button endButton = new Button("End & Save");
-        endButton.setFont(Font.font("Courier New", 23));
+        endButton.getStyleClass().add("end-button");
         endButton.setLayoutX(615);
         endButton.setLayoutY(430);
         endButton.setOnAction(actionEvent -> {
@@ -140,7 +138,7 @@ public class SimulationPageView {
         List<Map<String, Object>> existingData;
 
         // Read the existing JSON data from the file
-        try (FileReader reader = new FileReader("src/main/resources/data/datajson.json")) {
+        try (FileReader reader = new FileReader("src/main/resources/data/simulations.json")) {
             existingData = gson.fromJson(reader, listType);
             if (existingData == null) {
                 existingData = new ArrayList<>();
@@ -153,7 +151,7 @@ public class SimulationPageView {
         Map<String, Object> newData = new HashMap<>();
         newData.put("name", this.statisticsController.getSimulationName());
         newData.put("population quantity", this.population.getQuantity());
-        newData.put("infection probability", this.populationController.getTransmissionProb());
+        newData.put("infection probability", this.populationController.getTransmissionProb()*100);
         newData.put("infectious period", this.populationController.getInfectionPeriod());
         newData.put("infection radius", this.populationController.getInfectionRadius());
         if (this.publicPlace != null) {
@@ -166,7 +164,7 @@ public class SimulationPageView {
         existingData.add(newData);
 
         // Write the updated data back to the file
-        try (FileWriter fileWriter = new FileWriter("src/main/resources/data/datajson.json")) {
+        try (FileWriter fileWriter = new FileWriter("src/main/resources/data/simulations.json")) {
             gson.toJson(existingData, fileWriter);
         } catch (IOException e) {
             e.printStackTrace();
@@ -337,10 +335,9 @@ public class SimulationPageView {
     }
 
     private void addActionInterface() {
-        // TODO set styles to buttons
         if (this.publicPlace != null) {
             Button incrementHubButton = new Button("+");
-            incrementHubButton.setFont(Font.font("Courier New", 13));
+            incrementHubButton.getStyleClass().add("hub-button");
             incrementHubButton.setMinSize(11, 11);
             incrementHubButton.setLayoutX(190);
             incrementHubButton.setLayoutY(423);
@@ -353,7 +350,7 @@ public class SimulationPageView {
         }
         if (this.quarantineZone != null) {
             Button incrementQuarantineButton = new Button("+");
-            incrementQuarantineButton.setFont(Font.font("Courier New", 13));
+            incrementQuarantineButton.getStyleClass().add("quarantine-button");
             incrementQuarantineButton.setMinSize(11, 11);
             if (this.publicPlace == null) {
                 incrementQuarantineButton.setLayoutX(220);
