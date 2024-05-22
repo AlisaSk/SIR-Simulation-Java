@@ -7,8 +7,19 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.util.logging.Logger;
 
+/**
+ * The StartPageView class represents the view for the start page of the application. It contains start
+ * button to access the parameters page.
+ */
 public class StartPageView {
     public static final Logger LOGGER = Logger.getLogger(StartPageView.class.getName());
+
+    /**
+     * Handles the action event when the start button is clicked. It initializes the parameters page view
+     * and switches the scene to the parameters page.
+     *
+     * @param event The action event triggered by clicking the start button.
+     */
     @FXML
     void start(ActionEvent event){
         LOGGER.info("Start button is clicked");

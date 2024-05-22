@@ -8,17 +8,22 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-
+/**
+ * The Main class serves as the entry point for the JavaFX application, starting the SIR simulation.
+ */
 public class Main extends Application {
     /**
-     * Start application
+     * Starts application
      */
     public static void main(String[] args) {
         launch();
     }
 
     /**
-     * Loading start page
+     * Initialize and load the start page of the application.
+     *
+     * @param stage The primary stage of the application.
+     * @throws IOException If an error occurs while loading the FXML file.
      */
     @Override
     public void start(Stage stage) throws IOException {

@@ -26,14 +26,20 @@ import java.util.*;
 
 import static cvut.fel.cz.UI.view.StartPageView.LOGGER;
 
+/**
+ * View class for the Loading Page to load saved simulations from JSON.
+ */
 public class LoadingPageView {
     AnchorPane layout;
     private List<String> simulationNames;
     Random random = new Random();
     private ArrayList<String> randomColors;
     public LoadingPageView() {}
+
     /**
-     * View class for Loading Page to load saved simulations from json
+     * Starts the Loading Page view.
+     *
+     * @return the Scene for the Loading Page
      */
     public Scene start() {
         this.layout = new AnchorPane();

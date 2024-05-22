@@ -25,6 +25,13 @@ import java.util.Objects;
 
 import static cvut.fel.cz.UI.view.StartPageView.LOGGER;
 
+/**
+ * The ParametersPageView class represents the view for the parameters page of the simulation application.
+ * It allows users to set various parameters for the simulation, such as population quantity, infectious period,
+ * infection probability, and infection radius. The layout of this page is defined using JavaFX elements.
+ * Users can interact with input fields and buttons to configure the simulation parameters and proceed to run
+ * or load a simulation.
+ */
 public class ParametersPageView {
     private AnchorPane layout;
     private final Map<String, Control> inputFields = new HashMap<>();
@@ -32,6 +39,8 @@ public class ParametersPageView {
 
     /**
      * View Class for the Start Page, content is stored in fxml
+     *
+     * @return the Scene for the Parameters Page
      */
     public Scene start() {
         LOGGER.info("Parameters page is loaded");
