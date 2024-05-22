@@ -7,7 +7,6 @@ import java.util.List;
 
 public class Graph {
     private final List<Day> days;
-
     private int lastDay;
     private final Population population;
 

@@ -16,22 +16,27 @@ public class Population {
 
 
     /*
-    * adding person to the population
+    * Adding person to the population
     * */
     public void addPerson(Person person) {
         this.population.add(person);
     }
-
+    /*
+     * Getting person from the population
+     * */
     public Person getPerson(int index) {
         return this.population.get(index);
     }
     /*
-    * get population size
+    * Get population size
     * */
     public int getQuantity() {
         return population.size();
     }
 
+    /*
+     * Getting Quantity by status
+     * */
     private int getQuantityByStatus(PersonStatus status) {
         int count = 0;
         for (Person person: this.population) {

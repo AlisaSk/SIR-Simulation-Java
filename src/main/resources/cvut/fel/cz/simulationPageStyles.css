@@ -1,26 +1,6 @@
 .invisibleBox{
     -fx-background-color: transparent;
 }
-
-/*.topBar{*/
-/*   -fx-background-radius: 25 25 0 0;*/
-/*   -fx-background-color: #0b3048;*/
-/*}*/
-
-
-/*.background{*/
-/*    -fx-background-color: #05263b;*/
-/*    -fx-background-radius: 25;*/
-/*}*/
-
-
-/*.closeButton{*/
-/*    -fx-background-color:#0b3048;*/
-/*}*/
-
-/*.closeButton:hover{*/
-/*    -fx-background-color: #e94e50;*/
-/*}*/
 .slider {
     -fx-control-inner-background: #942b71;
     -fx-font-size: 14px;
@@ -33,6 +13,29 @@
 .slider .thumb {
     -fx-background-color: #f70ca9;
     -fx-background-radius: 10;
+}
+
+.end-button {
+    -fx-background-color: rgba(140, 140, 255, 0.85);
+    -fx-font-family: "Courier New";
+    -fx-text-fill: #f2f0f0;
+    -fx-font-size: 23px;
+}
+
+.hub-button {
+    -fx-background-color: rgba(250, 168, 5, 0.85);
+    -fx-font-family: "Courier New";
+    -fx-text-fill: #545353;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+}
+
+.quarantine-button {
+    -fx-background-color: rgba(130, 255, 165, 0.85);
+    -fx-font-family: "Courier New";
+    -fx-text-fill: #545353;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
 }
 
 
@@ -76,7 +79,6 @@
     -fx-background: transparent;
 }
 
-/** ????? **/
 .chart-series-line {
     -fx-stroke-width: 2px;
     -fx-effect: null;

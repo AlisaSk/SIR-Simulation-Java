@@ -19,7 +19,10 @@ public class PopulationController implements PopulationControllerInterface{
     private int infectiousTimeDays;
     private double infectionRadius;
 
-    public PopulationController(Population population, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
+    /**
+     * Main simulation controller class for updating Population, Public Place and Quarantine Models
+     */
+    public PopulationController(Population population, int populationQuantity, int transmissionProb, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
         this.circleSize = this.countCircleSize(populationQuantity);
         this.populationQuantity = populationQuantity;
@@ -30,27 +33,22 @@ public class PopulationController implements PopulationControllerInterface{
         this.quarantineZone = null;
     }
 
-    public PopulationController(Population population, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
+    /**
+     * Controller has many constructors to ensure different initial parameters of the simulation (Public Place and Quarantine Zone could be added)
+     */
+    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.publicPlace = publicPlaces;
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, populationQuantity, transmissionProb, 7, infectionRadius);
-        this.publicPlace = publicPlaces;
-    }
-
-    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, int infectiousTimeDays, double infectionRadius) {
-        this(population, publicPlaces, populationQuantity, transmissionProb, infectiousTimeDays, infectionRadius);
         this.quarantineZone = quarantineZone;
     }
 
-    public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, double transmissionProb, double infectionRadius) {
-        this(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
+    public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+        this.publicPlace = publicPlaces;
+    }
+
+    public PopulationController(Population population, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
+        this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.quarantineZone = quarantineZone;
     }
 
@@ -74,8 +72,8 @@ public class PopulationController implements PopulationControllerInterface{
         return this.population;
     }
 
-    public void setInfectionRadius(double infectionRadius) {
-        this.infectionRadius = infectionRadius;
+    public double getTransmissionProb() {
+        return this.transmissionProb;
     }
     public double getInfectionRadius() {
         return this.infectionRadius;
@@ -106,8 +104,9 @@ public class PopulationController implements PopulationControllerInterface{
         int x = this.random.nextInt(coordMax - coordMin) + coordMin;
         return x;
     }
-
+    @Override
     public boolean moveToPublicPlace(Person person) {
+        // There is a certain probability that the person will visit the hub
         if (this.random.nextDouble() < 0.001 && this.publicPlace.getOccupancy() < this.publicPlace.getCapacity()) {
             person.moveToHub();
             this.publicPlace.incrementOccupancy();
@@ -115,8 +114,9 @@ public class PopulationController implements PopulationControllerInterface{
         }
         return false;
     }
-
+    @Override
     public boolean moveToQuarantineZone(Person currentPerson, int currentDay) {
+        // Person is moved to a Quarantine Zone after 4 days of getting infection and only if there is available places
         if (this.quarantineZone.getOccupancy() < this.quarantineZone.getCapacity() && currentPerson.getStatus() == PersonStatus.Infectious && !currentPerson.getQuarantineStatus() && currentPerson.getReceivingInfectionDay() <= currentDay - 4) {
             currentPerson.moveToQuarantine();
             this.quarantineZone.incrementOccupancy();
@@ -136,7 +136,7 @@ public class PopulationController implements PopulationControllerInterface{
             }
 
             if (currentPerson.getQuarantineStatus()) {
-                this.moveWithinQuarintine(currentPerson);
+                this.moveWithinQuarantine(currentPerson);
                 continue;
             }
 
@@ -163,11 +163,12 @@ public class PopulationController implements PopulationControllerInterface{
         }
 
     }
-
-    public void moveWithinQuarintine(Person currentPerson) {
+    @Override
+    public void moveWithinQuarantine(Person currentPerson) {
         double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
         double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 
+        // Move within quarantine zone coordinates
         boolean isValidX = newX > 260 + circleSize && newX < 260 + 90 - circleSize;
         boolean isValidY = newY > 320 + circleSize && newY < 320 + 90 - circleSize;
 
@@ -195,10 +196,11 @@ public class PopulationController implements PopulationControllerInterface{
 
                 double distance = Math.sqrt(Math.pow(infectedX - suscepX, 2) + Math.pow(infectedY - suscepY, 2));
 
+                // Check if the person is within the infection radius
                 if (distance > this.infectionRadius * this.circleSize) {
                     continue;
                 }
-
+                // Get infection according to a certain probability
                 if (this.random.nextDouble() <= transmissionProb) {
                     personS.changeStatusToInfectious(currentDay);
                 }

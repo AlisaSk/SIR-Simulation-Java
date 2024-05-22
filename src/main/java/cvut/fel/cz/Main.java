@@ -10,10 +10,16 @@ import java.io.IOException;
 
 
 public class Main extends Application {
+    /**
+     * Start application
+     */
     public static void main(String[] args) {
         launch();
     }
 
+    /**
+     * Loading start page
+     */
     @Override
     public void start(Stage stage) throws IOException {
         Scene scene = new Scene(loadFXML("start_page"), 800, 500);
@@ -21,10 +27,6 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
     }
-
-//    public static void setRoot(String fxml) throws IOException {
-//        scene.setRoot(loadFXML(fxml));
-//    }
 
     private static Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxml + ".fxml"));

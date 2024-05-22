@@ -23,14 +23,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static cvut.fel.cz.UI.view.StartPageView.LOGGER;
+
 public class ParametersPageView {
     private AnchorPane layout;
     private final Map<String, Control> inputFields = new HashMap<>();
     private final Map<String, Text> labelsText = new HashMap<>();
 
+    /**
+     * View Class for the Start Page, content is stored in fxml
+     */
     public Scene start() {
+        LOGGER.info("Parameters page is loaded");
         Button startButton = this.createStartButton();
-        this.layout = new AnchorPane(startButton);
+        Button loadButton = this.createLoadButton();
+        this.layout = new AnchorPane(startButton, loadButton);
         Scene scene = new Scene(layout, 800, 500);
         this.addTitle();
         this.addParameters();
@@ -48,6 +55,7 @@ public class ParametersPageView {
         startButton.setOnAction(this::handleButtonAction);
         // button animation when it is pressed
         startButton.setOnMousePressed(e -> {
+            LOGGER.info("Start button is pressed");
             ScaleTransition st = new ScaleTransition(Duration.millis(100), startButton);
             st.setToX(0.95);
             st.setToY(0.95);
@@ -62,7 +70,26 @@ public class ParametersPageView {
         return startButton;
     }
 
+    private Button createLoadButton() {
+        Button startButton = new Button("LOAD"); // Button to load previous simulations
+        startButton.getStyleClass().add("start-button");
+        startButton.setLayoutX(400);
+        startButton.setLayoutY(400);
+        startButton.setPrefHeight(65);
+        startButton.setPrefWidth(140);
+        startButton.setOnAction(actionEvent -> {
+            LOGGER.info("Load button is pressed");
+            LoadingPageView loadingPageView = new LoadingPageView();
+            Scene loadScene = loadingPageView.start();
+            Node source = (Node) actionEvent.getSource();
+            Stage currentStage = (Stage) source.getScene().getWindow();
+            currentStage.setScene(loadScene);
+        });
+        return startButton;
+    }
+
     private void handleButtonAction(ActionEvent event) {
+        LOGGER.info("Start creating Simulation Page");
         String simulationName = getSimulationName();
         int populationQuantity = this.getParameterValue("People quantity in the population*", 2, 1500, true);
         int transmissionProb = this.getParameterValue("Probability of the infection transmission (%)*", 1, 100, true);
@@ -98,29 +125,27 @@ public class ParametersPageView {
             quarantineZone = new QuarantineZones(1, quarantineZoneCapacity);
         }
 
+        if (infectiousPeriod == 0) {
+            infectiousPeriod = 7; // Set default value
+        }
+
         PopulationController populationController;
 
-        if (infectiousPeriod > 0) {
-            if (publicPlaces != null && quarantineZone != null) {
+        // Creating different constructors so different optional parameters will affect the simulation
+        if (publicPlaces != null) {
+            if (quarantineZone != null) {
                 populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
-            } else if (publicPlaces != null) {
+            } else {
                 populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
-            } else if (quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
+            }
+        } else {
+            if (quarantineZone != null) {
+                populationController = new PopulationController(population, quarantineZone, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             } else {
                 populationController = new PopulationController(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
             }
-        } else {
-            if (publicPlaces != null && quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
-            } else if (publicPlaces != null) {
-                populationController = new PopulationController(population, publicPlaces, populationQuantity, transmissionProb, infectionRadius);
-            } else if (quarantineZone != null) {
-                populationController = new PopulationController(population, publicPlaces, quarantineZone, populationQuantity, transmissionProb, infectionRadius);
-            } else {
-                populationController = new PopulationController(population, populationQuantity, transmissionProb, infectionRadius);
-            }
         }
+
         StatisticsController statisticsController = new StatisticsController(graph, simulationName); // Statistics controller
         SimulationPageView simulationPageView = new SimulationPageView(populationController, statisticsController); // Simulation Page view
         Scene simulationScene = simulationPageView.start();
@@ -143,6 +168,7 @@ public class ParametersPageView {
         ChoiceBox<String> choiceBox = (ChoiceBox<String>) inputFields.get(key);
         String radiusString = choiceBox.getValue(); // Retrieves the currently selected value
 
+        // Returning double value according to chosen option
         switch (radiusString) {
             case "Small": return 1.1;
             case "Large": return 2.5;
@@ -167,19 +193,19 @@ public class ParametersPageView {
         String populationQuantityStr = ((TextField) inputFields.get(key)).getText();
         if (Objects.equals(populationQuantityStr, "") && !isMandatory) {
             this.setFineStyles(key);
-            return 0;
+            return 0; // User didn't choose an optional parameter
         }
         try {
             int populationQuantity = Integer.parseInt(populationQuantityStr);
             if (populationQuantity < fromInclusive || populationQuantity > toInclusive) {
                 this.setErrorStyles(key);
-                return -1;
+                return -1; // User entered incorrect value according to required range
             }
             this.setFineStyles(key);
             return populationQuantity;
         } catch (NumberFormatException e) {
             this.setErrorStyles(key);
-            return -1;
+            return -1; // User entered incorrect value
         }
     }
 
@@ -217,7 +243,7 @@ public class ParametersPageView {
             currentY += 32;
 
             if (Objects.equals(label, labels[4])) {
-                ChoiceBox<String> choiceBox = setChoiceBox();
+                ChoiceBox<String> choiceBox = setChoiceBox(); // Setting choicebox for radius value
                 hbox.getChildren().addAll(textParameter, choiceBox);
                 HBox.setMargin(choiceBox, new Insets(-10, 0, 0, 0));
                 this.inputFields.put(label, choiceBox);

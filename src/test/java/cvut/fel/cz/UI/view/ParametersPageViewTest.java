@@ -82,7 +82,7 @@ public class ParametersPageViewTest  {
 
     @Test
     public void testPrametersText() {
-        int expectSize = 8;
+        int expectSize = 7;
         ParametersPageView parametersPageView = new ParametersPageView();
         Scene scene = parametersPageView.start();
 
@@ -117,8 +117,8 @@ public class ParametersPageViewTest  {
         List<String> expectedItems = Arrays.asList(
                 "Simulation name*: ", "People quantity in the population*: ",
                 "Probability of the infection transmission (%)*: ", "Time of the infectious period (days): ",
-                "Infection radius: ", "(doesn't work)Number of quarantine zones: ",
-                "(doesn't work)Capacity of quarantine zones: ", "(doesn't work)Number of public places: "
+                "Infection radius: ",
+                "Capacity of a quarantine zone: ", "Capacity of a public place: "
         );
 
         assertEquals(expectedItems, textContents);
@@ -126,7 +126,7 @@ public class ParametersPageViewTest  {
 
     @Test
     public void testPrametersFields() {
-        int expectSize = 8;
+        int expectSize = 7;
         ParametersPageView parametersPageView = new ParametersPageView();
         Scene scene = parametersPageView.start();
 
@@ -154,7 +154,6 @@ public class ParametersPageViewTest  {
         List<String> expectedItems = Arrays.asList(
                 "TEST NAME", "1500",
                 "100", "10",
-                "10",
                 "10", "10"
         );
 

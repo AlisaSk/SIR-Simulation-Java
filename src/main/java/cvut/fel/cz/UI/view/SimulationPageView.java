@@ -1,5 +1,6 @@
 package cvut.fel.cz.UI.view;
 
+import com.google.gson.reflect.TypeToken;
 import cvut.fel.cz.logic.controller.PopulationController;
 import cvut.fel.cz.logic.controller.StatisticsController;
 import cvut.fel.cz.logic.model.graph.Graph;
@@ -26,9 +27,20 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static java.lang.Thread.sleep;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.FileWriter;
+import java.io.IOException;
+import static cvut.fel.cz.UI.view.StartPageView.LOGGER;
 
 public class SimulationPageView {
     private final PopulationController populationController;
@@ -42,23 +54,26 @@ public class SimulationPageView {
     StackedAreaChart<Number, Number> diagram;
     private Text sText, iText, rText, dayText, hubText, qText;
 
+    /**
+     * View class for Simulation Page with the connected Controllers and Models
+     */
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         this.populationController = populationController;
         this.statisticsController = statisticsController;
         this.population = this.populationController.createPopulation();// instance of population
         this.graph = this.statisticsController.initGraph(); // instance of graph
-        this.publicPlace = this.populationController.getPublicPlaces();
-        this.quarantineZone = this.populationController.getQuarantineZone();
+        this.publicPlace = this.populationController.getPublicPlaces(); // instance of public place (default null)
+        this.quarantineZone = this.populationController.getQuarantineZone(); // instance of quarantine zone (default null)
     }
 
     public Scene start() {
         this.layout = this.createSimulationWindow();
-        Scene scene = new Scene(layout, 800, 505);
+        Scene scene = new Scene(layout, 800, 500);
         scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
         return scene;
     }
 
-    public AnchorPane createSimulationWindow() {
+    private AnchorPane createSimulationWindow() {
         this.layout = new AnchorPane();
         layout.setStyle("-fx-background-color: #232324;");
         this.drawLines();
@@ -85,11 +100,10 @@ public class SimulationPageView {
         return layout;
     }
 
-
-
     private void createSimulationArea() {
+        Button endButton = createEndButton();
         Rectangle populationBoard = this.setPopulationBoard();
-        this.layout.getChildren().add(populationBoard);
+        this.layout.getChildren().addAll(populationBoard, endButton);
         if (this.publicPlace != null) {
             Rectangle publicPlaceBoard = this.createPublicPlace();
             this.layout.getChildren().add(publicPlaceBoard);
@@ -102,6 +116,65 @@ public class SimulationPageView {
         AnchorPane.setRightAnchor(populationBoard, 20.0);
 
         this.initPopulationCircles();
+    }
+
+    private Button createEndButton() {
+        Button endButton = new Button("End & Save");
+        endButton.getStyleClass().add("end-button");
+        endButton.setLayoutX(615);
+        endButton.setLayoutY(430);
+        endButton.setOnAction(actionEvent -> {
+            LOGGER.info("Simulation ended and saved");
+            this.addDataToJSON();
+            LoadingPageView loadingPageView = new LoadingPageView();
+            Scene loadScene = loadingPageView.start();
+            Node source = (Node) actionEvent.getSource();
+            Stage currentStage = (Stage) source.getScene().getWindow();
+            currentStage.setScene(loadScene);
+        });
+
+        return endButton;
+    }
+
+    private void addDataToJSON() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Type listType = new TypeToken<ArrayList<Map<String, Object>>>(){}.getType();
+
+        List<Map<String, Object>> existingData;
+
+        // Read the existing JSON data from the file
+        try (FileReader reader = new FileReader("src/main/resources/data/simulations.json")) {
+            existingData = gson.fromJson(reader, listType);
+            if (existingData == null) {
+                existingData = new ArrayList<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            existingData = new ArrayList<>();
+        }
+        // Define the data to be written to the JSON file using a Map
+        Map<String, Object> newData = new HashMap<>();
+        newData.put("name", this.statisticsController.getSimulationName());
+        newData.put("population quantity", this.population.getQuantity());
+        newData.put("infection probability", this.populationController.getTransmissionProb()*100);
+        newData.put("infectious period", this.populationController.getInfectionPeriod());
+        newData.put("infection radius", this.populationController.getInfectionRadius());
+        if (this.publicPlace != null) {
+            newData.put("hub capacity", this.publicPlace.getCapacity());
+        }
+        if (this.quarantineZone != null) {
+            newData.put("quarantine capacity", this.quarantineZone.getCapacity());
+        }
+
+        existingData.add(newData);
+
+        // Write the updated data back to the file
+        try (FileWriter fileWriter = new FileWriter("src/main/resources/data/simulations.json")) {
+            gson.toJson(existingData, fileWriter);
+            LOGGER.info("Data is written into JSON");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createStatisticsArea() {
@@ -192,12 +265,13 @@ public class SimulationPageView {
             timeline.getKeyFrames().add(keyFrame);
         }
 
+        // Ensured to be on a certain position
         KeyFrame finalKeyFrameToTarget = new KeyFrame(Duration.seconds(halfDuration), event -> {
             person.move(targetX, targetY);
         });
         timeline.getKeyFrames().add(finalKeyFrameToTarget);
 
-        // Add a pause transition for 1 second at the target position
+        // Add a pause transition for 0.75 second at the target position
         PauseTransition pause = new PauseTransition(Duration.seconds(0.75));
         pause.setOnFinished(event -> {
             Timeline timelineBack = new Timeline();
@@ -213,7 +287,7 @@ public class SimulationPageView {
 
             timelineBack.setOnFinished(e -> {
                 person.stopMoving(); // Call stopMoving() when the timeline is finished
-                this.publicPlace.decreasePlaceCapacity();
+                this.publicPlace.decreasePlaceOccupancy(); // Decrement place occupancy when the person is out
             });
 
             timelineBack.play();
@@ -268,23 +342,23 @@ public class SimulationPageView {
     }
 
     private void addActionInterface() {
-        // TODO set styles to buttons
         if (this.publicPlace != null) {
             Button incrementHubButton = new Button("+");
-            incrementHubButton.setFont(Font.font("Courier New", 13));
+            incrementHubButton.getStyleClass().add("hub-button");
             incrementHubButton.setMinSize(11, 11);
             incrementHubButton.setLayoutX(190);
             incrementHubButton.setLayoutY(423);
 
             incrementHubButton.setOnAction(actionEvent -> {
-                int updatedValue = Math.min(this.publicPlace.getCapacity() + 1, 100);
+                LOGGER.info("Public place capacity increased!");
+                int updatedValue = Math.min(this.publicPlace.getCapacity() + 1, 100); // Not to exceed max value
                 this.publicPlace.updateCapacity(updatedValue);
             });
             this.layout.getChildren().add(incrementHubButton);
         }
         if (this.quarantineZone != null) {
             Button incrementQuarantineButton = new Button("+");
-            incrementQuarantineButton.setFont(Font.font("Courier New", 13));
+            incrementQuarantineButton.getStyleClass().add("quarantine-button");
             incrementQuarantineButton.setMinSize(11, 11);
             if (this.publicPlace == null) {
                 incrementQuarantineButton.setLayoutX(220);
@@ -295,13 +369,14 @@ public class SimulationPageView {
             }
 
             incrementQuarantineButton.setOnAction(actionEvent -> {
-                int updatedValue = Math.min(this.quarantineZone.getCapacity() + 1, 300);
+                LOGGER.info("Quarantine Zone capacity increased!");
+                int updatedValue = Math.min(this.quarantineZone.getCapacity() + 1, 300); // Not to exceed max value
                 this.quarantineZone.updateCapacity(updatedValue);
             });
             this.layout.getChildren().add(incrementQuarantineButton);
         }
 
-
+        // Setting interactive slider and according text
         Text infectiousPeriodText = new Text("Infectious period");
         Font font = Font.font("Courier New", 17);
         Color color = Color.web("#fa8ecf");
@@ -320,6 +395,7 @@ public class SimulationPageView {
         infectionPeriodSlider.getStyleClass().add("slider");
         infectionPeriodSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                LOGGER.info("Infectious Period is changed!");
                 int newValueDouble = newValue.intValue();
                 populationController.setInfectiousTimeDays(newValueDouble);
             }
@@ -329,6 +405,7 @@ public class SimulationPageView {
     }
 
     private void addTextStatistics() {
+        // Adding static statistics (will not change over the time)
         Text sText = new Text("Susceptible: ");
         Text iText = new Text("Infectious: ");
         Text rText = new Text("Recovered: ");
@@ -387,6 +464,7 @@ public class SimulationPageView {
     }
 
     private void updateTextStatistics() {
+        // Adding dynamic statistics (will be changed over the time and after user actions)
         if (sText != null) {
             layout.getChildren().removeAll(sText, iText, rText, dayText, hubText, qText);
         }
@@ -479,13 +557,13 @@ public class SimulationPageView {
                 Circle circle = (Circle) node;
                 Person currentPerson = population.getPerson(index++);
 
-                // if the person is infected already for 3 days, he will be sent to quarantine zone
-                if (this.quarantineZone != null && !currentPerson.getMovingStatus() && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
-                    moveToQuarantine(currentPerson, 305, 365, 0.25);
+                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
+                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place and back
                 }
 
-                if (this.publicPlace != null && !currentPerson.getQuarantineStatus() && populationController.moveToPublicPlace(currentPerson)) {
-                    moveToPositionAndBack(currentPerson, 590, 220, 0.5); // move to public place
+                // if the person is infected already for 3 days, he will be sent to quarantine zone
+                if (this.quarantineZone != null && !currentPerson.getMovingStatus() && populationController.moveToQuarantineZone(currentPerson, this.graph.getLastDayNum())) {
+                    moveToQuarantine(currentPerson, 305, 365, 0.25); // move to quarantine
                 }
 
                 circle.setCenterX(currentPerson.getX());
@@ -553,7 +631,7 @@ public class SimulationPageView {
         recoveredSeries.getData().add(new XYChart.Data<Number, Number>(currentDay,rCount));
 
         NumberAxis xAxis = (NumberAxis) this.diagram.getXAxis();
-        xAxis.setUpperBound(currentDay + 1);
+        xAxis.setUpperBound(currentDay + 1); // Dynamically updating the days and xAxis
 
         if (currentDay < 10) {
             xAxis.setTickUnit(1);
