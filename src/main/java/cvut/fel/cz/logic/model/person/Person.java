@@ -38,7 +38,7 @@ public class Person {
 
     public void changeStatusToInfectious(int day) {
         this.status = PersonStatus.Infectious;
-        this.receivingInfectionDay = day;
+        this.receivingInfectionDay = day; // Remembering the day when status is changed to INFECTIOUS
         startRecoveryProcess();
     }
 
@@ -48,7 +48,7 @@ public class Person {
 
     public void moveToQuarantine() {
         this.isInQuarantine = true;
-    }
+    } // Set when moved into quarantine
 
     public boolean getQuarantineStatus() {
         return this.isInQuarantine;
@@ -56,11 +56,11 @@ public class Person {
 
     public void moveToHub() {
         this.isMovingToPlace = true;
-    }
+    } // Set when started moving to hub
 
     public void stopMoving() {
         this.isMovingToPlace = false;
-    }
+    } // Set when is on initial position
 
     public boolean getMovingStatus() {
         return this.isMovingToPlace;

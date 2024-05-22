@@ -7,31 +7,44 @@ import java.util.Random;
 
 public interface PopulationControllerInterface {
 
+    /*
+     * Creates a population with a zero patient
+     * */
     public Population createPopulation();
 
     /*
-    * creates a person
+    * Creates a person with valid coordinates
     * */
     public Person createPerson();
 
     /*
-    * generates random int value to set up person position
+    * Generates random int value to set up person position
     * */
     public int throwRandom(int coordMin, int coordMax);
 
     /*
-     * move each person in the city
+     * Move person to a Central Hub with a certain probability
+     * */
+    public boolean moveToPublicPlace(Person person);
+
+    /*
+     * Move person to a Quarantine Zone after 4 days of getting infection
+     * */
+    public boolean moveToQuarantineZone(Person currentPerson, int currentDay);
+
+    /*
+     * Move a single person on the main board
      * */
     public void movePeople(int currentDay);
 
+    /*
+     * Move a single person within quarantine zone
+     * */
+    public void moveWithinQuarantine(Person currentPerson);
 
-//    /*
-//     * change some people status in the population according to their contact with other I
-//     * (will be used radius of the infection and contacting time)
-//     * */
-//    private void addNewInfectious(int personI, double infectedX, double infectedY);
-
-
+    /*
+     * Circle size is counted according to the quantity of the population
+     * */
     public int countCircleSize(int N);
 
 }

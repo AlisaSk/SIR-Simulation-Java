@@ -1,13 +1,12 @@
 package cvut.fel.cz.logic.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import cvut.fel.cz.logic.model.hubs.QuarantineZones;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
 
 class PopulationControllerTest {
-
 
     @org.junit.jupiter.api.Test
     void createPopulation_checkQuantity() {
@@ -74,8 +73,6 @@ class PopulationControllerTest {
 
     @org.junit.jupiter.api.Test
     void movePeople() {
-        int expected = 1;
-        int actual = 1; // will be changed if at least one value does not match the condition
         int circleSize = 10;
 
         Population population = new Population();
@@ -93,6 +90,32 @@ class PopulationControllerTest {
 
             assertTrue(isValidX && isValidY);
         }
+    }
+
+    @org.junit.jupiter.api.Test
+    void moveToQuarantineZone_validMovement() {
+        Population population = new Population();
+        QuarantineZones quarantineZones = new QuarantineZones(1, 50); // assuming capacity is 50
+        PopulationController populationController = new PopulationController(population, quarantineZones, 10, 50, 10, 1.0);
+
+        Person person = populationController.createPerson();
+        person.changeStatusToInfectious(1);
+        boolean moved = populationController.moveToQuarantineZone(person, 5);
+
+        assertTrue(moved);
+        assertEquals(1, quarantineZones.getOccupancy());
+        assertTrue(person.getQuarantineStatus());
+    }
+
+    @org.junit.jupiter.api.Test
+    void changeInfectionPeriod() {
+        int newPeriod = 14;
+
+        Population population = new Population();
+        PopulationController populationController = new PopulationController(population, 10, 50, 7, 1.0);
+        populationController.setInfectiousTimeDays(newPeriod);
+
+        assertEquals(newPeriod, populationController.getInfectionPeriod());
     }
 
     @org.junit.jupiter.api.Test

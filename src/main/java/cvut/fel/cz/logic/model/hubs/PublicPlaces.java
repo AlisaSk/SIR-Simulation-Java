@@ -30,7 +30,7 @@ public class PublicPlaces {
         this.placeCapacity++;
     }
 
-    public void decreasePlaceCapacity() {
+    public void decreasePlaceOccupancy() {
         this.placeCapacity--;
     }
 }

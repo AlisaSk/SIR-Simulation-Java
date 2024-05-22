@@ -8,7 +8,7 @@ public class Day {
     private final int quantityRecovered;
 
     /*
-    * initialize the day
+    * Initialize the day
     * */
     public Day(int dayNumber, int quantitySusceptible, int quantityInfectious, int quantityRecovered) {
         this.dayNumber = dayNumber;
