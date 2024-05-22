@@ -5,10 +5,11 @@ import cvut.fel.cz.logic.model.hubs.QuarantineZones;
 import cvut.fel.cz.logic.model.person.Person;
 import cvut.fel.cz.logic.model.person.PersonStatus;
 import cvut.fel.cz.logic.model.population.Population;
+import org.junit.jupiter.api.Test;
 
 class PopulationControllerTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void createPopulation_checkQuantity() {
         int expected = 5;
 
@@ -20,7 +21,7 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void createPopulation_zeroPatient() {
         int expected = 1;
 
@@ -32,7 +33,7 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void createPerson_validCoords() {
         int expected = 1;
         int actual = 1;
@@ -57,7 +58,7 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void throwRandom_validValue() {
         int expected = 1;
 
@@ -71,7 +72,7 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void movePeople() {
         int circleSize = 10;
 
@@ -92,7 +93,7 @@ class PopulationControllerTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void moveToQuarantineZone_validMovement() {
         Population population = new Population();
         QuarantineZones quarantineZones = new QuarantineZones(1, 50); // assuming capacity is 50
@@ -107,7 +108,7 @@ class PopulationControllerTest {
         assertTrue(person.getQuarantineStatus());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void changeInfectionPeriod() {
         int newPeriod = 14;
 
@@ -118,7 +119,7 @@ class PopulationControllerTest {
         assertEquals(newPeriod, populationController.getInfectionPeriod());
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void addNewInfectious() {
         int expected = 2;
         int actual = 1; // one infectious is here by default (zero patient always is in the population)
@@ -139,7 +140,7 @@ class PopulationControllerTest {
         assertEquals(expected, actual);
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void countCircleSize() {
         int expected = 10; // medium size for populationQ = 100
 

@@ -1,5 +1,8 @@
 package cvut.fel.cz.logic.model.person;
 
+/**
+ * Represents a person in the simulation with attributes such as status, position, movement, and infection details.
+ */
 public class Person {
     private PersonStatus status;
     private double x;
@@ -11,6 +14,15 @@ public class Person {
     private boolean isInQuarantine;
     private boolean isMovingToPlace;
 
+    /**
+     * Constructs a Person with the specified position, movement direction, and infectious period.
+     *
+     * @param x the initial x-coordinate of the person
+     * @param y the initial y-coordinate of the person
+     * @param delX the change in x-coordinate for movement
+     * @param delY the change in y-coordinate for movement
+     * @param infectiousTimeDays the number of days the person remains infectious
+     */
     public Person(double x, double y, double delX, double delY, int infectiousTimeDays) {
         this.x = x;
         this.y = y;
@@ -22,6 +34,12 @@ public class Person {
         this.isMovingToPlace = false;
     }
 
+    /**
+     * Moves the person to a new position.
+     *
+     * @param newX the new x-coordinate
+     * @param newY the new y-coordinate
+     */
     public void move(double newX, double newY) {
         this.x = newX;
         this.y = newY;
@@ -36,6 +54,11 @@ public class Person {
         this.status = PersonStatus.Susceptible;
     }
 
+    /**
+     * Changes the status of the person to infectious and records the day of infection.
+     *
+     * @param day the day the person became infectious
+     */
     public void changeStatusToInfectious(int day) {
         this.status = PersonStatus.Infectious;
         this.receivingInfectionDay = day; // Remembering the day when status is changed to INFECTIOUS

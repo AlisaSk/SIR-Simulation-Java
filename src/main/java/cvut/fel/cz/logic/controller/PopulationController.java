@@ -8,6 +8,12 @@ import cvut.fel.cz.logic.model.population.Population;
 
 import java.util.Random;
 
+/**
+ * Main simulation controller class for updating Population, Public Place and Quarantine Models.
+ * The PopulationController class manages the simulation of a population, including
+ * infection dynamics, movement of individuals, and interactions with public places
+ * and quarantine zones.
+ */
 public class PopulationController implements PopulationControllerInterface{
     private QuarantineZones quarantineZone;
     Random random = new Random();
@@ -20,7 +26,13 @@ public class PopulationController implements PopulationControllerInterface{
     private double infectionRadius;
 
     /**
-     * Main simulation controller class for updating Population, Public Place and Quarantine Models
+     * Constructor for initializing the PopulationController with basic parameters.
+     *
+     * @param population the Population object to be managed
+     * @param populationQuantity the total number of individuals in the population
+     * @param transmissionProb the probability of infection transmission
+     * @param infectiousTimeDays the number of days an individual remains infectious
+     * @param infectionRadius the radius within which infection can occur
      */
     public PopulationController(Population population, int populationQuantity, int transmissionProb, int infectiousTimeDays, double infectionRadius) {
         this.population = population;
@@ -34,7 +46,15 @@ public class PopulationController implements PopulationControllerInterface{
     }
 
     /**
-     * Controller has many constructors to ensure different initial parameters of the simulation (Public Place and Quarantine Zone could be added)
+     * Constructor for initializing the PopulationController with additional public places and quarantine zones.
+     *
+     * @param population the Population object to be managed
+     * @param publicPlaces the PublicPlaces object representing public places in the simulation
+     * @param quarantineZone the QuarantineZones object representing quarantine zones in the simulation
+     * @param populationQuantity the total number of individuals in the population
+     * @param transmissionProb the probability of infection transmission
+     * @param infectiousPeriod the number of days an individual remains infectious
+     * @param infectionRadius the radius within which infection can occur
      */
     public PopulationController(Population population, PublicPlaces publicPlaces, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
         this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
@@ -42,16 +62,35 @@ public class PopulationController implements PopulationControllerInterface{
         this.quarantineZone = quarantineZone;
     }
 
+    /**
+     * Constructor for initializing the PopulationController with public places.
+     *
+     * @param population the Population object to be managed
+     * @param publicPlaces the PublicPlaces object representing public places in the simulation
+     * @param populationQuantity the total number of individuals in the population
+     * @param transmissionProb the probability of infection transmission
+     * @param infectiousPeriod the number of days an individual remains infectious
+     * @param infectionRadius the radius within which infection can occur
+     */
     public PopulationController(Population population, PublicPlaces publicPlaces, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
         this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.publicPlace = publicPlaces;
     }
 
+    /**
+     * Constructor for initializing the PopulationController with quarantine zones.
+     *
+     * @param population the Population object to be managed
+     * @param quarantineZone the QuarantineZones object representing quarantine zones in the simulation
+     * @param populationQuantity the total number of individuals in the population
+     * @param transmissionProb the probability of infection transmission
+     * @param infectiousPeriod the number of days an individual remains infectious
+     * @param infectionRadius the radius within which infection can occur
+     */
     public PopulationController(Population population, QuarantineZones quarantineZone, int populationQuantity, int transmissionProb, int infectiousPeriod, double infectionRadius) {
         this(population, populationQuantity, transmissionProb, infectiousPeriod, infectionRadius);
         this.quarantineZone = quarantineZone;
     }
-
 
     public PublicPlaces getPublicPlaces() {
         return this.publicPlace;
@@ -60,6 +99,12 @@ public class PopulationController implements PopulationControllerInterface{
         return this.quarantineZone;
     }
 
+    /**
+     * Creates a population by adding individuals to the Population object.
+     * The first individual is set to be infectious.
+     *
+     * @return the updated Population object
+     */
     @Override
     public Population createPopulation() {
         for (int i = 0; i < this.populationQuantity; i++) {
@@ -85,6 +130,11 @@ public class PopulationController implements PopulationControllerInterface{
         return this.infectiousTimeDays;
     }
 
+    /**
+     * Creates a new Person object with random initial coordinates and movement vectors.
+     *
+     * @return a new Person object
+     */
     @Override
     public Person createPerson() {
         int xMin = 400 + this.circleSize;
@@ -99,11 +149,26 @@ public class PopulationController implements PopulationControllerInterface{
         return person;
     }
 
+    /**
+     * Generates a random integer between the specified minimum and maximum values.
+     *
+     * @param coordMin the minimum value
+     * @param coordMax the maximum value
+     * @return a random integer between coordMin and coordMax
+     */
     @Override
     public int throwRandom(int coordMin, int coordMax) {
         int x = this.random.nextInt(coordMax - coordMin) + coordMin;
         return x;
     }
+
+    /**
+     * Moves a person to a public place with a certain probability.
+     * The person is moved only if the public place has available capacity.
+     *
+     * @param person the Person object to be moved
+     * @return true if the person is moved to the public place, false otherwise
+     */
     @Override
     public boolean moveToPublicPlace(Person person) {
         // There is a certain probability that the person will visit the hub
@@ -114,6 +179,16 @@ public class PopulationController implements PopulationControllerInterface{
         }
         return false;
     }
+
+    /**
+     * Moves a person to a quarantine zone based on certain conditions.
+     * The person is moved if they are infectious, have been infectious for at least 4 days,
+     * and there is available capacity in the quarantine zone.
+     *
+     * @param currentPerson the Person object to be moved
+     * @param currentDay the current day of the simulation
+     * @return true if the person is moved to the quarantine zone, false otherwise
+     */
     @Override
     public boolean moveToQuarantineZone(Person currentPerson, int currentDay) {
         // Person is moved to a Quarantine Zone after 4 days of getting infection and only if there is available places
@@ -125,6 +200,12 @@ public class PopulationController implements PopulationControllerInterface{
         return false;
     }
 
+    /**
+     * Moves people within the population based on their status and updates their infection status if necessary.
+     * Infectious individuals can infect susceptible individuals within the infection radius.
+     *
+     * @param currentday the current day of the simulation
+     */
     @Override
     public void movePeople(int currentday) {
         for (int i = 0; i < this.population.getQuantity(); i++) {
@@ -163,8 +244,9 @@ public class PopulationController implements PopulationControllerInterface{
         }
 
     }
-    @Override
-    public void moveWithinQuarantine(Person currentPerson) {
+
+
+    private void moveWithinQuarantine(Person currentPerson) {
         double newX = currentPerson.getX() + currentPerson.getDelX()*this.random.nextDouble();
         double newY = currentPerson.getY() + currentPerson.getDelY()*this.random.nextDouble();
 
@@ -208,6 +290,12 @@ public class PopulationController implements PopulationControllerInterface{
         }
     }
 
+    /**
+     * Counts the circle size based on the population size.
+     *
+     * @param N the population size
+     * @return the circle size
+     */
     @Override
     public int countCircleSize(int N) {
         int largeSize = 25;

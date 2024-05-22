@@ -42,6 +42,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import static cvut.fel.cz.UI.view.StartPageView.LOGGER;
 
+/**
+ * The SimulationPageView class represents the view for the simulation page of the application. It is responsible
+ * for displaying the simulation environment and its elements, including the population, graphs, public places,
+ * and quarantine zones. This class is connected with PopulationController and StatisticsController to manage
+ * the simulation logic and statistics.
+ */
 public class SimulationPageView {
     private final PopulationController populationController;
     private final StatisticsController statisticsController;
@@ -55,7 +61,11 @@ public class SimulationPageView {
     private Text sText, iText, rText, dayText, hubText, qText;
 
     /**
-     * View class for Simulation Page with the connected Controllers and Models
+     * Constructs a SimulationPageView object with the provided PopulationController and StatisticsController.
+     * Initializes the population, graph, public place, and quarantine zone based on the controllers.
+     *
+     * @param populationController The controller managing the population and simulation logic.
+     * @param statisticsController The controller managing the simulation statistics and graph.
      */
     public SimulationPageView(PopulationController populationController, StatisticsController statisticsController) {
         this.populationController = populationController;
@@ -66,6 +76,11 @@ public class SimulationPageView {
         this.quarantineZone = this.populationController.getQuarantineZone(); // instance of quarantine zone (default null)
     }
 
+    /**
+     * Initializes and starts the simulation page by creating the simulation window layout.
+     *
+     * @return The Scene object representing the simulation page.
+     */
     public Scene start() {
         this.layout = this.createSimulationWindow();
         Scene scene = new Scene(layout, 800, 500);
