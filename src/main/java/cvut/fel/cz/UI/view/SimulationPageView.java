@@ -84,6 +84,7 @@ public class SimulationPageView {
     public Scene start() {
         this.layout = this.createSimulationWindow();
         Scene scene = new Scene(layout, 800, 500);
+        String yest = new String();
         scene.getStylesheets().add(getClass().getResource("/cvut/fel/cz/simulationPageStyles.css").toExternalForm());
         return scene;
     }
